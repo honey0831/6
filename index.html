@@ -347,7 +347,7 @@ tr:hover td{background:#fafcff}
 <script>
 const CONFIG = {
   APP_KEY: '6816F27B16D39A008D8E5E7948C43F71',
-  API_DOMAIN: 'http://api.yesapi.net/',
+  API_DOMAIN: 'https://api.yesapi.net/',  // 【关键】强制改用 https 加密连接
   TABLE: 'score_list'
 };
 
@@ -367,14 +367,25 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 
   async function apiRequest(service, params){
-    const body = new URLSearchParams();
-    body.append('app_key', CONFIG.APP_KEY);
-    for(const k in params) body.append(k, typeof params[k] === 'string' ? params[k] : JSON.stringify(params[k]));
-    try{
-      const res = await fetch(CONFIG.API_DOMAIN + '?s=' + service, {method:'POST', body});
-      return await res.json();
-    }catch(e){ console.error(e); return null; }
+  const body = new URLSearchParams();
+  body.append('app_key', CONFIG.APP_KEY);
+  for(const k in params) body.append(k, typeof params[k] === 'string' ? params[k] : JSON.stringify(params[k]));
+  try{
+    const res = await fetch(CONFIG.API_DOMAIN + '?s=' + service, {method:'POST', body});
+    const json = await res.json();
+    
+    // 【诊断】如果果创云返回了错误代码，强制在网页上弹窗提醒
+    if(json && json.ret !== 200 && json.ret !== 0){
+       console.error("果创云接口报错：", json);
+       syncStatus.textContent = '保存失败: ' + (json.msg || '接口异常');
+    }
+    return json;
+  }catch(e){ 
+    console.error("网络请求失败：", e); 
+    syncStatus.textContent = '网络请求失败';
+    return null; 
   }
+}
 
   async function pullFromCloud(){
     syncStatus.textContent = '正在加载...';
