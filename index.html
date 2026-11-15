@@ -1,864 +1,867 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>班级积分管理</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f6bff'/%3E%3Crect x='8' y='16' width='4' height='9' fill='white'/%3E%3Crect x='14' y='12' width='4' height='13' fill='white'/%3E%3Crect x='20' y='8' width='4' height='17' fill='white'/%3E%3C/svg%3E">
+<title>班级全能管理终端</title>
 <style>
-:root{
-  --blue:#2f6bff; --blue-d:#1f56e0; --blue-l:#eaf1ff;
-  --bg:#f3f5fa; --card:#ffffff; --line:#e5e9f2; --line-2:#eef1f7;
-  --text:#1f2430; --muted:#7a8194;
-  --green:#18a86b; --green-l:#e8f8f0;
-  --red:#e0454c; --red-l:#fdeaea;
-  --amber:#f0a020;
-  --shadow:0 1px 3px rgba(23,35,64,.06), 0 6px 18px rgba(23,35,64,.05);
-}
+:root{--blue:#2f6bff;--blue-d:#1f56e0;--bg:#f3f5fa;--card:#fff;--line:#e5e9f2;--text:#1f2430;--muted:#7a8194;--green:#18a86b;--red:#e0454c;--shadow:0 4px 12px rgba(23,35,64,.05)}
 *{margin:0;padding:0;box-sizing:border-box}
-body{
-  font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,-apple-system,sans-serif;
-  background:var(--bg); color:var(--text); font-size:14px; line-height:1.6;
-  -webkit-font-smoothing:antialiased;
-}
-button{font-family:inherit;cursor:pointer;border:none;background:none;font-size:14px}
+body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:none;background:none;font-size:14px;transition:all .2s}
 input,select,textarea{font-family:inherit;font-size:16px;color:var(--text)}
 .hidden{display:none!important}
 
-/* ============ 登录页 ============ */
-.login-wrap{
-  min-height:100vh; display:flex; align-items:center; justify-content:center;
-  background:linear-gradient(160deg,#eef3ff 0%,#f6f8fc 45%,#eef7f2 100%);
-  padding:24px 16px;
-}
-.login-card{
-  width:100%; max-width:400px; background:#fff; border-radius:16px; padding:32px 28px 26px;
-  box-shadow:0 12px 40px rgba(30,58,120,.10), 0 2px 6px rgba(30,58,120,.06);
-}
-.login-logo{display:flex;align-items:center;gap:10px;margin-bottom:6px}
-.login-logo .mark{
-  width:38px;height:38px;border-radius:9px;background:var(--blue);display:flex;
-  align-items:center;justify-content:center;
-}
-.login-logo .mark svg{width:20px;height:20px}
-.login-title{font-size:21px;font-weight:600;letter-spacing:.5px}
-.login-sub{color:var(--muted);font-size:13px;margin-bottom:22px;line-height:1.7}
+/* 登录页 */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#eef3ff,#f6f8fc,#eef7f2);padding:24px 16px}
+.login-card{width:100%;max-width:400px;background:#fff;border-radius:16px;padding:32px 28px 26px;box-shadow:0 12px 40px rgba(30,58,120,.10)}
+.login-title{font-size:21px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.login-sub{color:var(--muted);font-size:13px;margin-bottom:22px}
 .field{margin-bottom:14px}
 .field label{display:block;font-size:13px;color:#59617a;margin-bottom:6px}
-.field input{
-  width:100%;height:44px;border:1px solid var(--line);border-radius:9px;padding:0 13px;
-  outline:none;transition:border-color .15s,box-shadow .15s;background:#fcfdff;
-}
+.field input{width:100%;height:44px;border:1px solid var(--line);border-radius:9px;padding:0 13px;outline:none;background:#fcfdff}
 .field input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(47,107,255,.12);background:#fff}
-.login-btn{
-  width:100%;height:46px;border-radius:9px;background:var(--blue);color:#fff;
-  font-size:16px;font-weight:600;margin-top:6px;transition:background .15s;
-}
+.login-btn{width:100%;height:46px;border-radius:9px;background:var(--blue);color:#fff;font-size:16px;font-weight:600;margin-top:6px}
 .login-btn:hover{background:var(--blue-d)}
 .login-switch{text-align:center;margin-top:16px;font-size:13px;color:var(--muted)}
-.login-switch b{color:var(--blue);cursor:pointer;font-weight:500}
+.login-switch b{color:var(--blue);cursor:pointer}
 .login-err{color:var(--red);font-size:13px;min-height:20px;margin-top:8px}
-.login-note{
-  margin-top:18px;padding-top:14px;border-top:1px dashed var(--line);
-  font-size:12px;color:var(--muted);line-height:1.7;
-}
 
-/* ============ 顶部栏 ============ */
-.topbar{
-  height:62px;background:#fff;border-bottom:1px solid var(--line);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 18px;position:sticky;top:0;z-index:20;
-}
-.brand{display:flex;align-items:center;gap:10px;min-width:0}
-.brand .mark{
-  width:32px;height:32px;border-radius:8px;background:var(--blue);flex:none;
-  display:flex;align-items:center;justify-content:center;
-}
-.brand .mark svg{width:17px;height:17px}
-.brand-txt .t{font-size:17px;font-weight:600;white-space:nowrap}
-.brand-txt .s{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;line-height:1.3}
-.dot{width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block}
-.top-actions{display:flex;align-items:center;gap:8px;flex:none}
-.tbtn{
-  height:34px;padding:0 13px;border-radius:7px;color:#fff;font-size:13.5px;
-  display:inline-flex;align-items:center;gap:5px;transition:opacity .15s;white-space:nowrap;
-}
-.tbtn:hover{opacity:.9}
-.tbtn.sync{background:#2b7cd3}
-.tbtn.export{background:#1f9c63}
-.tbtn.exam{background:#2f6bff}
-.tbtn.profile{background:#eef1f8;color:#2b3247}
-.tbtn svg{width:15px;height:15px}
+/* 顶部栏 */
+.topbar{height:62px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 18px;position:sticky;top:0;z-index:20}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#4a8cff,#1f56e0);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(47,107,255,.3)}
+.brand .mark svg{width:18px;height:18px;fill:#fff}
+.brand-txt .t{font-size:17px;font-weight:600;letter-spacing:.5px}
+.brand-txt .s{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;box-shadow:0 0 6px rgba(24,168,107,.6)}
+.top-actions{display:flex;gap:8px;flex-wrap:wrap}
+.tbtn{height:34px;padding:0 13px;border-radius:7px;color:#fff;font-size:13.5px;display:inline-flex;align-items:center;gap:5px}
+.tbtn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.tbtn.sync{background:#2b7cd3}.tbtn.export{background:#1f9c63}.tbtn.profile{background:#eef1f8;color:#2b3247}
+.tbtn.lucky{background:linear-gradient(135deg,#ff8a00,#e52e71);box-shadow:0 4px 10px rgba(229,46,113,.3)}
+.tbtn.notice{background:#f39c12}.tbtn.timer{background:#8e44ad}
 
-/* ============ 主体布局 ============ */
-.layout{display:flex;align-items:flex-start;gap:16px;padding:16px;max-width:1500px;margin:0 auto}
-.sidebar{width:270px;flex:none;display:flex;flex-direction:column;gap:14px}
-.card{background:var(--card);border-radius:11px;box-shadow:var(--shadow);border:1px solid #f0f2f7}
-.card-hd{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:14px 16px;border-bottom:1px solid var(--line-2);
-}
-.card-hd h3{font-size:15px;font-weight:600;display:flex;align-items:center;gap:7px}
-.card-hd .collapse{color:#aeb6c8;font-size:12px}
+/* 布局与侧边栏 */
+.layout{display:flex;gap:16px;padding:16px;max-width:1500px;margin:0 auto;align-items:flex-start}
+.sidebar{width:280px;flex:none;display:flex;flex-direction:column;gap:14px}
+.card{background:#fff;border-radius:11px;box-shadow:var(--shadow);border:1px solid #f0f2f7}
+.card-hd{padding:14px 16px;border-bottom:1px solid #eef1f7;font-size:15px;font-weight:600}
 .card-bd{padding:14px 16px 16px}
-
-/* 统计 */
 .stat-row{display:flex;gap:10px;padding:14px 16px}
-.stat{
-  flex:1;background:#f7f9fd;border-radius:9px;padding:10px 12px;border:1px solid #f0f3fa;
-}
+.stat{flex:1;background:#f7f9fd;border-radius:9px;padding:10px 12px;border:1px solid #eef1f7}
 .stat .k{font-size:12px;color:var(--muted)}
-.stat .v{font-size:23px;font-weight:600;line-height:1.25;color:#2461e8}
+.stat .v{font-size:23px;font-weight:600;color:#2461e8}
 .stat.alt .v{color:#1f9c63}
-
-/* 表单 */
 .f{margin-bottom:10px}
 .f label{display:block;font-size:12.5px;color:#69718a;margin-bottom:5px}
-.f input,.f select{
-  width:100%;height:40px;border:1px solid var(--line);border-radius:8px;padding:0 11px;
-  background:#fbfcff;outline:none;font-size:15px;
-}
+.f input,.f select{width:100%;height:40px;border:1px solid var(--line);border-radius:8px;padding:0 11px;background:#fbfcff;outline:none;font-size:15px}
 .f input:focus,.f select:focus{border-color:#9cb9ff;box-shadow:0 0 0 3px rgba(47,107,255,.09);background:#fff}
-.f-row{display:flex;gap:8px}
-.f-row .f{flex:1;margin-bottom:0}
-.btn-main{
-  width:100%;height:42px;border-radius:8px;background:var(--blue);color:#fff;
-  font-size:15px;font-weight:500;margin-top:12px;transition:background .15s;
-}
+.f-row{display:flex;gap:8px}.f-row .f{flex:1;margin-bottom:0}
+.btn-main{width:100%;height:42px;border-radius:8px;background:var(--blue);color:#fff;font-size:15px;margin-top:12px}
 .btn-main:hover{background:var(--blue-d)}
-.btn-green{
-  width:100%;height:40px;border-radius:8px;background:#1f9c63;color:#fff;
-  font-size:14.5px;display:flex;align-items:center;justify-content:center;gap:6px;
-}
-.btn-ghost{
-  width:100%;height:36px;border-radius:8px;background:#f2f4f9;color:#4a5268;
-  font-size:13.5px;margin-top:8px;border:1px solid #e9ecf4;
-}
+.btn-green{width:100%;height:40px;border-radius:8px;background:#1f9c63;color:#fff;font-size:14.5px}
+.btn-green:hover{background:#188f5a}
+.btn-ghost{width:100%;height:36px;border-radius:8px;background:#f2f4f9;color:#4a5268;font-size:13.5px;margin-top:8px;border:1px solid #e9ecf4}
+.btn-ghost:hover{background:#e9ecf4}
 .hint-line{font-size:12px;color:#98a0b3;margin-top:8px;line-height:1.6}
-.mobile-tip{display:none;font-size:12.5px;color:#98a0b3;margin-top:8px}
 
-/* 使用提示 */
-.tips{font-size:12.5px;color:#5d647a;line-height:1.85}
-.tips li{margin-bottom:9px;padding-left:2px;list-style:none;display:flex;gap:6px}
-.tips li::before{content:"";width:4px;height:4px;border-radius:50%;background:#b9c3d8;flex:none;margin-top:9px}
-.tips b{color:#2a3350;font-weight:600}
-
-/* ============ 主区域 ============ */
+/* 主区域与标签 */
 .main{flex:1;min-width:0}
-.tabs{
-  display:flex;background:#fff;border-radius:11px;padding:5px;gap:4px;
-  box-shadow:var(--shadow);border:1px solid #f0f2f7;margin-bottom:14px;overflow-x:auto;
-}
-.tab{
-  flex:1;min-width:98px;height:40px;border-radius:8px;font-size:14.5px;color:#4d556e;
-  display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;
-  transition:background .15s,color .15s;
-}
+.tabs{display:flex;background:#fff;border-radius:11px;padding:5px;gap:4px;box-shadow:var(--shadow);margin-bottom:14px;overflow-x:auto}
+.tab{flex:1;min-width:90px;height:40px;border-radius:8px;font-size:14px;color:#4d556e;display:flex;align-items:center;justify-content:center;gap:6px}
 .tab:hover{background:#f4f7fe}
-.tab.on{background:var(--blue);color:#fff;font-weight:500}
-.tab svg{width:15px;height:15px;opacity:.9}
-
-.panel{background:#fff;border-radius:11px;box-shadow:var(--shadow);border:1px solid #f0f2f7;padding:14px 16px 18px}
-.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
-.search-wrap{flex:1;min-width:200px;position:relative}
-.search-wrap input{
-  width:100%;height:40px;border:1px solid var(--line);border-radius:8px;
-  padding:0 12px 0 36px;background:#fbfcff;outline:none;font-size:15px;
-}
-.search-wrap input:focus{border-color:#9cb9ff;background:#fff}
-.search-wrap svg{position:absolute;left:12px;top:11px;width:16px;height:16px;color:#a4acbf}
-.seg{display:flex;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}
-.seg button{height:38px;padding:0 13px;font-size:13.5px;color:#5a6279;border-right:1px solid var(--line-2)}
-.seg button:last-child{border-right:none}
+.tab.on{background:var(--blue);color:#fff;font-weight:500;box-shadow:0 3px 8px rgba(47,107,255,.25)}
+.panel{background:#fff;border-radius:11px;box-shadow:var(--shadow);padding:14px 16px 18px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.search-wrap{flex:1;min-width:180px}
+.search-wrap input{width:100%;height:40px;border:1px solid var(--line);border-radius:8px;padding:0 12px;background:#fbfcff;outline:none;font-size:15px}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}
+.seg button{height:38px;padding:0 13px;font-size:13.5px;color:#5a6279;border-right:1px solid #eef1f7}
 .seg button.on{background:var(--blue);color:#fff}
-.btn-batch{
-  height:38px;padding:0 14px;border-radius:8px;background:#f0902b;color:#fff;
-  font-size:13.5px;display:inline-flex;align-items:center;gap:6px;
-}
+.btn-batch{height:38px;padding:0 14px;border-radius:8px;background:#f0902b;color:#fff;font-size:13.5px}
 .btn-batch:hover{background:#e5831f}
 
-/* 表格 */
+/* 表格与头像 */
 .tbl-scroll{width:100%;overflow-x:auto}
-table{width:100%;border-collapse:collapse;table-layout:fixed;min-width:640px}
-th{
-  text-align:left;font-size:13px;color:#7b8298;font-weight:500;
-  padding:10px 10px;background:#f8fafd;white-space:nowrap;
-}
-th:first-child{border-radius:8px 0 0 8px}
-th:last-child{border-radius:0 8px 8px 0}
+table{width:100%;border-collapse:collapse;min-width:640px}
+th{text-align:left;font-size:13px;color:#7b8298;font-weight:500;padding:10px;background:#f8fafd;white-space:nowrap}
+th:first-child{border-radius:8px 0 0 8px} th:last-child{border-radius:0 8px 8px 0}
 td{padding:11px 10px;border-bottom:1px solid #f2f4f9;font-size:14px;vertical-align:middle}
 tr:hover td{background:#fafcff}
-.row-idx{color:#8d94a8;font-size:13px}
-.name-cell{display:flex;align-items:center;gap:8px;min-width:0}
-.avatar{
-  width:28px;height:28px;border-radius:50%;flex:none;display:flex;align-items:center;
-  justify-content:center;font-size:13px;color:#fff;background:#8aa6f7;
-}
-.avatar.g2{background:#7ec8a9}.avatar.g3{background:#f0a8a8}.avatar.g4{background:#c3a8f0}
-.avatar.g5{background:#f0c48a}.avatar.g6{background:#8ac6f0}.avatar.g7{background:#a8d98a}
-.avatar.g8{background:#f0a8d4}.avatar.g9{background:#9aa8f0}
-.name-cell span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row-idx{color:#8d94a8;font-size:13px;font-weight:600}
+.name-cell{display:flex;align-items:center;gap:8px}
+.avatar{width:28px;height:28px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;background:#8aa6f7}
+.avatar.g1{background:#6b8afd}.avatar.g2{background:#33c88c}.avatar.g3{background:#f27a7a}.avatar.g4{background:#ae86f7}.avatar.g5{background:#f5b041}.avatar.g6{background:#5dade2}.avatar.g7{background:#82e0aa}.avatar.g8{background:#f1948a}.avatar.g9{background:#85929e}.avatar.ungrouped{background:#b0b7c8}
+.medal{font-size:16px;margin-right:2px}
 .score-num{font-weight:600;color:#2461e8;font-size:15px}
-.tag-group{
-  display:inline-block;padding:2px 8px;border-radius:5px;background:#eef3ff;
-  color:#3a6bd6;font-size:12.5px;white-space:nowrap;
-}
+.tag-group{display:inline-block;padding:2px 8px;border-radius:5px;background:#eef3ff;color:#3a6bd6;font-size:12.5px}
 .muted{color:#a3aabb;font-size:13px}
 .acts{display:flex;gap:4px;flex-wrap:wrap}
-.act{
-  height:27px;padding:0 8px;border-radius:5px;font-size:12.5px;
-  display:inline-flex;align-items:center;gap:3px;
-}
-.act.plus{background:var(--green-l);color:#0f9457}
-.act.minus{background:var(--red-l);color:#c93a41}
-.act.plain{background:#f1f4fb;color:#4d5670}
-.act.del{background:#fff0f0;color:#d14848}
-.act:hover{filter:brightness(.96)}
-
-/* 空态 */
+.act{height:27px;padding:0 8px;border-radius:5px;font-size:12.5px;display:inline-flex;align-items:center}
+.act.plus{background:#e8f8f0;color:#0f9457}.act.plus:hover{background:#d1f2e2}
+.act.minus{background:#fdeaea;color:#c93a41}.act.minus:hover{background:#fbd5d5}
+.act.plain{background:#f1f4fb;color:#4d5670}.act.plain:hover{background:#e4e9f5}
+.act.del{background:#fff0f0;color:#d14848}.act.del:hover{background:#ffe0e0}
 .empty{padding:52px 16px;text-align:center;color:#9aa2b6}
-.empty .ico{width:52px;height:52px;margin:0 auto 10px;border-radius:12px;background:#f3f6fd;
-  display:flex;align-items:center;justify-content:center;color:#b8c3dc}
-.empty p{font-size:13.5px;margin-bottom:2px}
-.empty .sub{font-size:12.5px;color:#b0b7c8}
 
-/* 分组榜人均 */
-.avg{color:#0f9457;font-weight:600}
-
-/* 积分排座 */
-.seat-wrap{padding:6px 2px}
-.seat-legend{font-size:12.5px;color:#8a92a6;margin-bottom:12px}
-.seat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.seat{
-  border:1px solid #e9edf5;border-radius:9px;padding:10px;background:#fbfcff;
-  display:flex;flex-direction:column;gap:4px;min-height:66px;
-}
-.seat .n{font-size:11.5px;color:#9aa2b6}
-.seat .nm{font-size:14.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.seat .sc{font-size:12.5px;color:#2461e8}
-.seat.top1{border-color:#ffe0a6;background:#fffbf1}
-.seat.top2{border-color:#dfe6f5;background:#f9fbff}
-.seat.top3{border-color:#ffe4d0;background:#fff9f4}
-
-/* 商城 */
+/* 商城与排座 */
 .shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
-.goods{
-  border:1px solid #eceff6;border-radius:10px;padding:13px;background:#fff;
-  display:flex;flex-direction:column;gap:8px;
-}
+.goods{border:1px solid #eceff6;border-radius:10px;padding:13px;background:#fff;display:flex;flex-direction:column;gap:8px;transition:transform .2s}
+.goods:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
 .goods .g-name{font-size:14.5px;font-weight:500}
 .goods .g-meta{font-size:12.5px;color:#7f8799;display:flex;justify-content:space-between}
 .goods .g-cost{color:#e0761a;font-weight:600}
-.btn-redeem{height:32px;border-radius:7px;background:var(--blue-l);color:#2a5fd6;font-size:13px}
+.btn-redeem{height:32px;border-radius:7px;background:#eaf1ff;color:#2a5fd6;font-size:13px}
 .btn-redeem:hover{background:#dde9ff}
+.seat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.seat{border:1px solid #e9edf5;border-radius:9px;padding:10px;background:#fbfcff;display:flex;flex-direction:column;gap:4px}
+.seat .n{font-size:11.5px;color:#9aa2b6}
+.seat .nm{font-size:14.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seat .sc{font-size:12.5px;color:#2461e8}
+.seat.top1{border-color:#ffd700;background:#fffcf0}
+.seat.top2{border-color:#c0c0c0;background:#f9fbff}
+.seat.top3{border-color:#cd7f32;background:#fff9f4}
 
-/* 积分记录 */
-.rec-summary{font-size:13px;color:#7b8298;margin-left:auto}
-.rec-summary b{color:#2461e8}
-.pager{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 0 2px;flex-wrap:wrap}
-.pager button{height:32px;min-width:32px;padding:0 10px;border-radius:6px;border:1px solid var(--line);
-  background:#fff;color:#4d556e;font-size:13px}
-.pager button:disabled{color:#c3c9d8;cursor:not-allowed}
-.pager button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
-.pager .info{font-size:12.5px;color:#98a0b3;margin:0 4px}
+/* 成绩分析栏 */
+.exam-stats{display:flex;gap:10px;margin-bottom:12px;background:#f8fafd;padding:10px;border-radius:8px;font-size:13px;color:#5d647a;flex-wrap:wrap}
+.exam-stats span b{color:#2f6bff}
+.text-red{color:#e0454c!important;font-weight:600}
 
-/* 成绩 */
-.exam-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
-.exam-select{height:38px;border:1px solid var(--line);border-radius:8px;padding:0 10px;background:#fff;min-width:170px}
-.mini-btn{height:34px;padding:0 12px;border-radius:7px;font-size:13px;display:inline-flex;align-items:center;gap:5px}
-.mini-btn.blue{background:var(--blue);color:#fff}
-.mini-btn.line{border:1px solid var(--line);color:#4d5670;background:#fff}
-.mini-btn.redline{border:1px solid #f5c9c9;color:#d14848;background:#fff}
-.rank-badge{width:22px;height:22px;border-radius:6px;display:inline-flex;align-items:center;
-  justify-content:center;font-size:12px;background:#eff3fb;color:#5b647c}
-.rank-1{background:#fff1d8;color:#c07a00}
-.rank-2{background:#e9eff9;color:#4a6fa5}
-.rank-3{background:#fdeee2;color:#b06a34}
-.delta-up{color:#0f9457;font-size:13px}
-.delta-down{color:#d14848;font-size:13px}
-.delta-flat{color:#9aa2b6;font-size:13px}
-
-/* ============ 弹窗 ============ */
-.modal-back{
-  position:fixed;inset:0;background:rgba(22,30,50,.36);z-index:100;
-  display:flex;align-items:flex-start;justify-content:center;padding:60px 16px 30px;overflow-y:auto;
-}
-.modal{
-  width:100%;max-width:470px;background:#fff;border-radius:14px;
-  box-shadow:0 18px 50px rgba(20,32,60,.22);overflow:hidden;
-}
-.modal.wide{max-width:620px}
+/* 弹窗与历史 */
+.modal-back{position:fixed;inset:0;background:rgba(22,30,50,.4);z-index:100;display:flex;align-items:flex-start;justify-content:center;padding:60px 16px 30px;overflow-y:auto;backdrop-filter:blur(2px)}
+.modal{width:100%;max-width:470px;background:#fff;border-radius:14px;box-shadow:0 20px 60px rgba(20,32,60,.25);overflow:hidden;animation:popIn .25s cubic-bezier(0.175, 0.885, 0.32, 1.275)}
+@keyframes popIn{0%{transform:scale(.95);opacity:0}100%{transform:scale(1);opacity:1}}
 .m-hd{display:flex;align-items:center;justify-content:space-between;padding:17px 20px 6px}
 .m-hd h3{font-size:17px;font-weight:600;display:flex;align-items:center;gap:7px}
-.m-close{width:30px;height:30px;border-radius:6px;color:#9aa2b6;font-size:20px;line-height:1;
-  display:flex;align-items:center;justify-content:center}
+.m-close{width:30px;height:30px;border-radius:6px;color:#9aa2b6;font-size:20px;display:flex;align-items:center;justify-content:center}
 .m-close:hover{background:#f3f5fa}
 .m-bd{padding:8px 20px 4px}
-.m-ft{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:16px 20px 18px}
+.m-ft{display:flex;justify-content:flex-end;gap:10px;padding:16px 20px 18px}
 .btn-line{height:38px;padding:0 22px;border-radius:8px;background:#f1f3f9;color:#4d556e;font-size:14px}
 .btn-solid{height:38px;padding:0 26px;border-radius:8px;background:#3d82f0;color:#fff;font-size:14px;font-weight:500}
 .btn-solid:hover{background:#2e72df}
-.btn-solid.orange{background:#f0902b;color:#fff}
-.btn-solid.orange:hover{background:#e5831f}
-.btn-solid:disabled{background:#c8cfdd;cursor:not-allowed}
-
-/* 学生信息行 */
-.stu-line{display:flex;justify-content:space-between;align-items:center;padding:2px 0 14px;
-  font-size:13.5px;color:#7b8298}
-.stu-line b{color:#2a3350;font-size:14.5px;font-weight:600}
-/* 加减分切换 */
-.op-switch{display:flex;gap:10px;margin-bottom:16px}
-.op-btn{
-  flex:1;height:42px;border-radius:8px;border:1px solid #dde3ee;background:#fff;
-  font-size:15px;color:#5d647a;
-}
-.op-btn.add.on{border-color:#21b06a;color:#0f9457;background:#f3fcf7;font-weight:500}
-.op-btn.sub.on{border-color:#e5484d;color:#d14848;background:#fff6f6;font-weight:500}
-/* 快捷分数 */
-.qlabel{font-size:12.5px;color:#8a92a6;margin:2px 0 8px}
-.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:14px}
-.quick{
-  height:40px;border:1px solid #e2e7f1;border-radius:8px;background:#fbfcff;font-size:15px;color:#39405a;
-}
-.quick:hover{border-color:#b9c9ee;background:#fff}
-.quick.on{border-color:#3d82f0;color:#2563e8;background:#eff5ff;font-weight:600}
-.custom-input{
-  width:100%;height:44px;border:1px solid #e2e7f1;border-radius:8px;padding:0 12px;background:#fbfcff;outline:none;
-}
-.custom-input:focus{border-color:#9cb9ff;background:#fff}
-.remark{
-  width:100%;min-height:78px;border:1px solid #e2e7f1;border-radius:8px;padding:10px 12px;
-  background:#fbfcff;outline:none;resize:vertical;line-height:1.6;font-size:15px;
-}
-.remark:focus{border-color:#9cb9ff;background:#fff}
-.err-tip{color:var(--red);font-size:12.5px;margin-top:6px;min-height:17px}
-
-/* 批量弹窗 */
-.batch-switch{display:flex;gap:10px;margin-bottom:14px}
-.batch-btn2{flex:1;height:42px;border:1px solid #dde3ee;border-radius:8px;background:#fff;font-size:15px;color:#5d647a}
-.batch-btn2.add.on{border-color:#21b06a;color:#0f9457;background:#f3fcf7;font-weight:500}
-.batch-btn2.sub.on{border-color:#e5484d;color:#d14848;background:#fff6f6;font-weight:500}
-.target-label{font-size:12.5px;color:#8a92a6;margin-bottom:8px}
-.target-switch{display:flex;gap:10px;margin-bottom:14px}
-.target-btn{flex:1;height:38px;border:1px solid #dde3ee;border-radius:8px;background:#fff;font-size:14px;color:#5d647a}
-.target-btn.on{border-color:#3d82f0;color:#2563e8;background:#eff5ff;font-weight:500}
-.batch-reason{width:100%;height:40px;border:1px solid #e2e7f1;border-radius:8px;padding:0 12px;background:#fbfcff;outline:none}
-.batch-bar{display:flex;align-items:center;gap:14px;padding:10px 0 8px;font-size:12.5px;color:#7b8298}
-.batch-bar .link{color:#2461e8;cursor:pointer}
-.batch-bar .cnt{margin-left:auto}
-.batch-list{max-height:270px;overflow-y:auto;border:1px solid #eef1f7;border-radius:9px;background:#fcfdff}
-.batch-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid #f1f4f9;cursor:pointer}
-.batch-item:last-child{border-bottom:none}
-.batch-item:hover{background:#f7faff}
-.chk{width:18px;height:18px;border-radius:4px;border:1.5px solid #ccd4e4;background:#fff;
-  display:flex;align-items:center;justify-content:center;flex:none}
-.chk.on{background:#3d82f0;border-color:#3d82f0}
-.chk.on::after{content:"";width:9px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;
-  transform:rotate(-45deg) translateY(-1px)}
-.batch-item .bi-name{flex:1;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.batch-item .bi-sc{font-size:12.5px;color:#8a92a6}
-.batch-score-row{display:flex;align-items:center;gap:10px;margin-top:12px}
-.batch-score-row input{height:40px;border:1px solid #e2e7f1;border-radius:8px;padding:0 12px;background:#fbfcff;width:120px;outline:none}
-
-/* 历史 */
 .hist-list{max-height:400px;overflow-y:auto}
 .hist-item{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid #f2f4f9}
-.hist-item:last-child{border-bottom:none}
 .hist-item .h-time{font-size:12.5px;color:#9aa2b6}
-.hist-item .h-reason{font-size:13.5px;color:#3f4760;margin-top:2px;word-break:break-all}
+.hist-item .h-reason{font-size:13.5px;color:#3f4760;margin-top:2px}
 .hist-item .h-num{font-size:15px;font-weight:600;white-space:nowrap}
 .h-num.up{color:#0f9457}.h-num.down{color:#d14848}
+.op-switch{display:flex;gap:10px;margin-bottom:16px}
+.op-btn{flex:1;height:42px;border-radius:8px;border:1px solid #dde3ee;background:#fff;font-size:15px;color:#5d647a}
+.op-btn.add.on{border-color:#21b06a;color:#0f9457;background:#f3fcf7;font-weight:500}
+.op-btn.sub.on{border-color:#e5484d;color:#d14848;background:#fff6f6;font-weight:500}
+.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:14px}
+.quick{height:40px;border:1px solid #e2e7f1;border-radius:8px;background:#fbfcff;font-size:15px;color:#39405a}
+.quick.on{border-color:#3d82f0;color:#2563e8;background:#eff5ff;font-weight:600}
+.custom-input{width:100%;height:44px;border:1px solid #e2e7f1;border-radius:8px;padding:0 12px;background:#fbfcff;outline:none}
+.remark{width:100%;min-height:70px;border:1px solid #e2e7f1;border-radius:8px;padding:10px 12px;background:#fbfcff;outline:none;resize:vertical}
 
-/* 编辑 */
-.edit-grid .f{margin-bottom:12px}
-.edit-grid .f input,.edit-grid .f select{height:42px;font-size:15px}
-
-/* 个人中心 */
-.prof-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f2f4f9;font-size:13.5px}
-.prof-row span{color:#7b8298}
-.prof-row b{font-weight:500}
-.prof-acts{display:flex;flex-direction:column;gap:8px;margin-top:14px}
-
-/* Toast */
-.toast{
-  position:fixed;left:50%;bottom:38px;transform:translateX(-50%) translateY(10px);
-  background:rgba(30,38,58,.94);color:#fff;padding:10px 18px;border-radius:9px;font-size:13.5px;
-  opacity:0;transition:opacity .22s,transform .22s;z-index:300;pointer-events:none;max-width:80vw;text-align:center;
-}
+/* 倒计时浮层 */
+.timer-overlay{position:fixed;inset:0;background:rgba(15,23,42,.95);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff}
+.timer-time{font-size:120px;font-weight:800;font-family:monospace;text-shadow:0 0 30px rgba(255,255,255,.3);margin-bottom:30px;color:#4ade80}
+.timer-btns{display:flex;gap:20px}
+.timer-btn{padding:12px 30px;font-size:18px;border-radius:50px;background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.3)}
+.timer-btn:hover{background:rgba(255,255,255,.2)}
+.toast{position:fixed;left:50%;bottom:38px;transform:translateX(-50%) translateY(10px);background:rgba(30,38,58,.94);color:#fff;padding:10px 18px;border-radius:9px;font-size:13.5px;opacity:0;transition:.22s;z-index:300;pointer-events:none}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-/* 响应式 */
-@media (max-width:960px){
-  .layout{flex-direction:column;align-items:stretch;padding:12px;gap:12px}
-  .main{width:100%;max-width:100%;order:1}
-  .sidebar{order:2}
-  .panel{padding:12px 12px 16px}
-  .mobile-tip{display:block}
-  .tabs{max-width:100%;overflow-x:auto}
-  .sidebar{width:100%;position:static}
-  .topbar{height:auto;padding:10px 12px;flex-wrap:wrap;gap:8px}
-  .brand .mark{width:28px;height:28px}
-  .brand-txt .t{font-size:15.5px}
-  .top-actions{width:100%;justify-content:flex-end;gap:6px}
-  .tbtn{height:32px;padding:0 10px;font-size:12.5px}
-  .seat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .stat .v{font-size:20px}
-  .sidebar{display:grid;grid-template-columns:1fr;gap:12px}
-}
-@media (max-width:520px){
-  .tabs .tab{min-width:0;font-size:13px;padding:0 8px}
-  .tab .t-txt{font-size:12.5px}
-  .toolbar{gap:8px}
-  .seg button{padding:0 9px;font-size:12.5px}
-  .btn-batch{padding:0 10px;font-size:12.5px}
-  .quick-grid{gap:7px}
-  .modal-back{padding:26px 10px 20px}
-  .m-bd{padding:8px 15px 4px}
-  .m-ft{padding:14px 15px 16px}
-}
+@media(max-width:960px){.layout{flex-direction:column;padding:12px}.main{order:1}.sidebar{order:2;width:100%}.topbar{height:auto;padding:10px 12px;flex-wrap:wrap;gap:8px}.top-actions{width:100%;justify-content:flex-end}.seat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
 <body>
 
-<!-- ================= 登录 ================= -->
 <div class="login-wrap" id="loginView">
   <div class="login-card">
-    <div class="login-logo">
-      <div class="mark">
-        <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="13" width="4" height="8" fill="#fff" rx="1"/><rect x="10" y="9" width="4" height="12" fill="#fff" rx="1"/><rect x="17" y="4" width="4" height="17" fill="#fff" rx="1"/></svg>
+    <div class="login-title" style="display:flex;align-items:center;gap:10px">
+      <div class="mark" style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#4a8cff,#1f56e0);display:flex;align-items:center;justify-content:center">
+        <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:#fff"><rect x="3" y="13" width="4" height="8" rx="1"/><rect x="10" y="9" width="4" height="12" rx="1"/><rect x="17" y="4" width="4" height="17" rx="1"/></svg>
       </div>
-      <div class="login-title">班级积分管理</div>
+      班级全能管理终端
     </div>
-    <p class="login-sub">登录后管理本班学生积分、小组排名与成绩分析</p>
-    <div class="field">
-      <label>账号</label>
-      <input id="loginUser" type="text" placeholder="请输入账号，如 banji01" autocomplete="username">
-    </div>
-    <div class="field">
-      <label>密码</label>
-      <input id="loginPass" type="password" placeholder="请输入密码" autocomplete="current-password">
-    </div>
-    <div class="field hidden" id="regPassWrap">
-      <label>确认密码</label>
-      <input id="loginPass2" type="password" placeholder="再次输入密码">
-    </div>
+    <p class="login-sub" style="margin-top:10px">登录后数据自动同步到云端，换电脑登录同一账号即可查看</p >
+    <div class="field"><label>账号</label><input id="loginUser" type="text" placeholder="如 banji01"></div>
+    <div class="field"><label>密码</label><input id="loginPass" type="password" placeholder="请输入密码"></div>
+    <div class="field hidden" id="regPassWrap"><label>确认密码</label><input id="loginPass2" type="password" placeholder="再次输入密码"></div>
     <div class="login-err" id="loginErr"></div>
     <button class="login-btn" id="loginBtn">登录</button>
     <div class="login-switch" id="loginSwitch">还没有账号？<b>立即注册</b></div>
-    <p class="login-note">
-      数据默认保存在本机浏览器，按账号独立存储；顶部【同步】按钮可上传/拉取云端备份，跨设备共用一套数据。清除浏览器数据会同时清除本地积分数据，建议定期导出备份。
-    </p>
   </div>
 </div>
 
-<!-- ================= 主系统 ================= -->
 <div id="appView" class="hidden">
   <header class="topbar">
     <div class="brand">
       <div class="mark">
-        <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="13" width="4" height="8" fill="#fff" rx="1"/><rect x="10" y="9" width="4" height="12" fill="#fff" rx="1"/><rect x="17" y="4" width="4" height="17" fill="#fff" rx="1"/></svg>
+        <svg viewBox="0 0 24 24"><rect x="3" y="13" width="4" height="8" rx="1"/><rect x="10" y="9" width="4" height="12" rx="1"/><rect x="17" y="4" width="4" height="17" rx="1"/></svg>
       </div>
       <div class="brand-txt">
-        <div class="t">班级积分管理</div>
-        <div class="s"><span class="dot"></span><span id="curUser">—</span><span>·</span><span id="syncStatus">本地已保存</span></div>
+        <div class="t">班级全能管理终端</div>
+        <div class="s"><span class="dot"></span><span id="curUser">—</span> · <span id="syncStatus">云端已连接</span></div>
       </div>
     </div>
     <div class="top-actions">
-      <button class="tbtn sync" id="btnSync">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6" stroke-width="2"/></svg>同步
-      </button>
-      <button class="tbtn export" id="btnExport">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>导出
-      </button>
-      <button class="tbtn exam" id="btnExam">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M4 19V7"/><path d="M10 19V11"/><path d="M16 19V4"/><path d="M22 19V9"/></svg>成绩
-      </button>
-      <button class="tbtn profile" id="btnProfile">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#2b3247" stroke-width="2"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 21c1-4 4-6 7.5-6s6.5 2 7.5 6"/></svg>个人中心
-      </button>
+      <button class="tbtn notice" id="btnNotice">📢 班级公告</button>
+      <button class="tbtn timer" id="btnTimer">⏰ 倒计时</button>
+      <button class="tbtn lucky" id="btnLucky">🎲 抽人</button>
+      <button class="tbtn sync" id="btnSync">同步</button>
+      <button class="tbtn export" id="btnExport">导出</button>
+      <button class="tbtn profile" id="btnProfile">个人中心</button>
     </div>
   </header>
 
   <div class="layout">
-    <!-- 侧边栏 -->
     <aside class="sidebar">
       <div class="card">
         <div class="stat-row">
-          <div class="stat">
-            <div class="k">学生总数</div>
-            <div class="v" id="statStu">0</div>
-          </div>
-          <div class="stat alt">
-            <div class="k">积分记录</div>
-            <div class="v" id="statLog">0</div>
-          </div>
+          <div class="stat"><div class="k">学生总数</div><div class="v" id="statStu">0</div></div>
+          <div class="stat alt"><div class="k">积分记录</div><div class="v" id="statLog">0</div></div>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-hd"><h3>新增学生</h3><span class="collapse">收起</span></div>
+        <div class="card-hd">新增学生</div>
         <div class="card-bd">
           <div class="f"><label>学生姓名</label><input id="inName" placeholder="学生姓名" maxlength="20"></div>
           <div class="f-row">
-            <div class="f"><label>班级小组（选填）</label>
-              <select id="inGroup">
-                <option value="">未分组</option>
-              </select>
-            </div>
-            <div class="f"><label>性别（选填）</label>
-              <select id="inGender">
-                <option value="">未填写</option>
-                <option>男</option>
-                <option>女</option>
-              </select>
-            </div>
+            <div class="f"><label>小组</label><select id="inGroup"><option value="">未分组</option></select></div>
+            <div class="f"><label>性别</label><select id="inGender"><option value="">未填写</option><option>男</option><option>女</option></select></div>
           </div>
-          <div class="f" style="margin-top:10px"><label>班级职务（选填）</label><input id="inDuty" placeholder="如：班长 / 组长" maxlength="20"></div>
+          <div class="f" style="margin-top:10px"><label>职务（选填）</label><input id="inDuty" placeholder="如：班长" maxlength="20"></div>
           <button class="btn-main" id="btnAddStudent">添加学生</button>
-          <div class="hint-line">回车也可快速添加</div>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-hd"><h3>批量导入</h3><span class="collapse">展开</span></div>
+        <div class="card-hd">批量导入</div>
         <div class="card-bd">
-          <p class="hint-line" style="margin-top:0;margin-bottom:10px">上传 Excel 批量导入 / 更新学生（首行可为表头，列：姓名·性别·组号·职务）</p>
-          <input type="file" id="fileExcel" accept=".csv,.txt,.xls,.xlsx" class="hidden">
-          <button class="btn-green" id="btnPickFile">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:15px;height:15px"><path d="M4 7h6l2 2h8v10H4z" fill="#fff" stroke="none"/></svg>选择 Excel 文件
-          </button>
+          <p class="hint-line" style="margin-top:0;margin-bottom:10px">CSV 列顺序：姓名,性别,组号,职务（首行可为表头）</p >
+          <input type="file" id="fileCsv" accept=".csv,.txt" class="hidden">
+          <button class="btn-green" id="btnPickCsv">选择 CSV 文件</button>
           <button class="btn-ghost" id="btnTpl">下载导入模板</button>
         </div>
       </div>
-
-      <div class="card">
-        <div class="card-hd"><h3>使用提示</h3><span class="collapse">收起</span></div>
-        <div class="card-bd">
-          <ul class="tips">
-            <li><span><b>批量导入学生</b>：上传花名册，模板列为 姓名·性别·组号·职务（首行可为表头，重复姓名自动更新）；也可先点「下载导入模板」填写。<br>纯网页版可直接导入 CSV 文件，Excel 请另存为 CSV 后再导入。</span></li>
-            <li><span><b>顶部切换</b>可查看「小组榜」「积分排座」「积分商城」「积分记录」。</span></li>
-            <li><span>排行榜中点击「加分」「减分」进行积分操作，必须填写备注。</span></li>
-            <li><span>「编辑」可修改姓名 / 小组 / 职务 / 性别，「删除」可移出该学生。</span></li>
-            <li><span>顶部「批量加减」可勾选多名学生（或整组）一次加减同一分数。</span></li>
-            <li><span>「积分商城」可添加礼物，对学生或小组兑换并自动扣积分。</span></li>
-            <li><span>点「导出」生成 WPS / Excel 可打开的表格文件，含学生榜、小组榜、积分记录。</span></li>
-            <li><span>【同步按钮】：拉取云端覆盖本地 / 上传本地到云端备份，实现多设备共用一套班级数据。</span></li>
-          </ul>
-        </div>
-      </div>
     </aside>
-
-    <!-- 主区域 -->
     <main class="main">
       <nav class="tabs" id="tabs">
-        <button class="tab on" data-tab="students">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c.9-3.6 3.4-5.4 6.5-5.4s5.6 1.8 6.5 5.4"/><circle cx="18" cy="9.5" r="2.3"/><path d="M16.5 14.5c2.6.3 4.4 1.9 5 4.5"/></svg>
-          <span class="t-txt">学生榜</span>
-        </button>
-        <button class="tab" data-tab="groups">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7.5" r="2.6"/><circle cx="17" cy="7.5" r="2.6"/><path d="M2 19c.6-3 2.6-4.6 5-4.6s4.4 1.6 5 4.6"/><path d="M12 19c.6-3 2.6-4.6 5-4.6s4.4 1.6 5 4.6"/></svg>
-          <span class="t-txt">小组榜</span>
-        </button>
-        <button class="tab" data-tab="seats">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="7" rx="1.5"/><rect x="3" y="13" width="18" height="7" rx="1.5"/><path d="M7 7.5h.01M8 16.5h.01"/></svg>
-          <span class="t-txt">积分排座</span>
-        </button>
-        <button class="tab" data-tab="shop">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8h16l-1.2 11H5.2z"/><path d="M8.5 8V6.4a3.5 3.5 0 0 1 7 0V8"/></svg>
-          <span class="t-txt">积分商城</span>
-        </button>
-        <button class="tab" data-tab="records">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
-          <span class="t-txt">积分记录</span>
-        </button>
+        <button class="tab on" data-tab="students">👨‍🎓 学生榜</button>
+        <button class="tab" data-tab="groups">👥 小组榜</button>
+        <button class="tab" data-tab="seats">💺 排座</button>
+        <button class="tab" data-tab="shop">🎁 商城</button>
+        <button class="tab" data-tab="exam">📊 成绩</button>
+        <button class="tab" data-tab="homework">📝 作业看板</button>
+        <button class="tab" data-tab="attendance">📋 考勤</button>
       </nav>
 
-      <!-- ===== 学生榜 ===== -->
+      <!-- 学生榜 -->
       <section class="panel" id="panel-students">
         <div class="toolbar">
-          <div class="search-wrap">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#a4acbf" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></svg>
-            <input id="searchStu" placeholder="搜索学生姓名 / 小组快速定位...">
-          </div>
+          <div class="search-wrap"><input id="searchStu" placeholder="搜索学生姓名 / 小组..."></div>
           <div class="seg" id="sortStu">
             <button class="on" data-sort="desc">高→低</button>
             <button data-sort="asc">低→高</button>
-            <button data-sort="time">按时间</button>
           </div>
-          <button class="btn-batch" id="btnBatchStu">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:14px;height:14px"><path d="M4 7h10M4 12h10M4 17h7"/><path d="M18 6v6M15 9h6"/></svg>批量加减
-          </button>
+          <button class="btn-batch" id="btnBatchStu">批量加减</button>
         </div>
-        <div class="mobile-tip">手机上左右滑动表格可查看「操作」按钮</div>
         <div class="tbl-scroll">
           <table>
-            <colgroup>
-              <col style="width:8%"><col style="width:20%"><col style="width:18%">
-              <col style="width:18%"><col style="width:10%"><col style="width:26%">
-            </colgroup>
-            <thead>
-              <tr><th>排名</th><th>姓名</th><th>班级小组</th><th>班级职务</th><th>积分</th><th>操作</th></tr>
-            </thead>
+            <colgroup><col style="width:8%"><col style="width:20%"><col style="width:16%"><col style="width:16%"><col style="width:10%"><col style="width:30%"></colgroup>
+            <thead><tr><th>排名</th><th>姓名</th><th>小组</th><th>职务</th><th>积分</th><th>操作</th></tr></thead>
             <tbody id="tbodyStu"></tbody>
           </table>
         </div>
-        <div class="empty" id="emptyStu">
-          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#b8c3dc" stroke-width="1.8" style="width:26px;height:26px"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c1-3.8 4-5.8 7.5-5.8s6.5 2 7.5 5.8"/><path d="M18 4v4M16 6h4"/></svg></div>
-          <p>还没有学生</p>
-          <div class="sub">先在左侧「新增学生」添加，或批量导入花名册</div>
-        </div>
+        <div class="empty" id="emptyStu"><p>还没有学生</p ><div class="sub">左侧添加或批量导入</div></div>
       </section>
 
-      <!-- ===== 小组榜 ===== -->
+      <!-- 小组榜 -->
       <section class="panel hidden" id="panel-groups">
-        <div class="toolbar">
-          <div class="search-wrap">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#a4acbf" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></svg>
-            <input id="searchGrp" placeholder="搜索小组名称...">
-          </div>
-          <div class="seg" id="sortGrp">
-            <button class="on" data-sort="desc">高→低</button>
-            <button data-sort="asc">低→高</button>
-            <button data-sort="time">按时间</button>
-          </div>
-          <button class="btn-batch" id="btnBatchGrp">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:14px;height:14px"><path d="M4 7h10M4 12h10M4 17h7"/><path d="M18 6v6M15 9h6"/></svg>批量加减
-          </button>
-        </div>
         <div class="tbl-scroll">
           <table>
-            <colgroup>
-              <col style="width:12%"><col style="width:28%"><col style="width:20%"><col style="width:20%"><col style="width:20%">
-            </colgroup>
-            <thead>
-              <tr><th>排名</th><th>小组名称</th><th>人数</th><th>总积分</th><th>人均积分</th><th>操作</th></tr>
-            </thead>
+            <thead><tr><th>排名</th><th>小组名称</th><th>人数</th><th>总积分</th><th>人均积分</th></tr></thead>
             <tbody id="tbodyGrp"></tbody>
           </table>
         </div>
-        <div class="empty" id="emptyGrp">
-         <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#b8c3dc" stroke-width="1.8" style="width:26px;height:26px"><circle cx="12" cy="12" r="10"></circle></svg></div>
+      </section>
 
-</section>
+      <!-- 排座 -->
+      <section class="panel hidden" id="panel-seats">
+        <div class="hint-line" style="margin-top:0;margin-bottom:12px">按总积分从高到低自动生成座位顺序，积分越高座位越靠前。</div>
+        <div class="seat-grid" id="seatGrid"></div>
+      </section>
 
+      <!-- 商城 -->
+      <section class="panel hidden" id="panel-shop">
+        <div class="toolbar">
+          <button class="btn-main" style="width:auto;padding:0 20px;margin-top:0" id="btnAddGoods">+ 添加奖品</button>
+        </div>
+        <div class="shop-grid" id="shopGrid"></div>
+        <h3 style="margin-top:20px;font-size:15px;padding-bottom:10px;border-bottom:1px solid #eef1f7">最近兑换记录</h3>
+        <div class="hist-list" id="redeemLogList"></div>
+      </section>
+
+      <!-- 成绩 -->
+      <section class="panel hidden" id="panel-exam">
+        <div class="toolbar">
+          <div class="search-wrap"><input id="searchExam" placeholder="搜索学生姓名..."></div>
+          <button class="btn-batch" style="background:#2f6bff" id="btnAddExam">+ 录入/修改成绩</button>
+        </div>
+        <div class="exam-stats" id="examStats"></div>
+        <div class="tbl-scroll">
+          <table>
+            <thead><tr><th>排名</th><th>姓名</th><th>语文</th><th>数学</th><th>英语</th><th>物理</th><th>化学</th><th>生物</th><th>总分</th></tr></thead>
+            <tbody id="tbodyExam"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 作业看板 -->
+      <section class="panel hidden" id="panel-homework">
+        <div class="toolbar">
+          <button class="btn-main" style="width:auto;padding:0 20px;margin-top:0" id="btnAddHomework">+ 布置新作业</button>
+        </div>
+        <div class="tbl-scroll">
+          <table>
+            <thead><tr><th>日期</th><th>学科</th><th>作业内容</th><th>提交情况</th><th>操作</th></tr></thead>
+            <tbody id="tbodyHomework"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 考勤 -->
+      <section class="panel hidden" id="panel-attendance">
+        <div class="hint-line" style="margin-top:0;margin-bottom:12px">今日考勤打卡，点击名字快速切换状态。迟到/早退/旷课自动计入积分流水。</div>
+        <div class="tbl-scroll">
+          <table>
+            <thead><tr><th>姓名</th><th>今日状态</th><th>操作</th></tr></thead>
+            <tbody id="tbodyAttendance"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div id="modalBack" class="modal-back hidden">
+  <div class="modal" id="modalBox"></div>
+</div>
+<div class="toast" id="toast"></div>
 <script>
+const CONFIG = {
+  APP_KEY: '6816F27B16D39A008D8E5E7948C43F71',
+  API_DOMAIN: 'http://api.yesapi.net/',
+  TABLE: 'score_list'
+};
+
 document.addEventListener('DOMContentLoaded', function(){
-    const loginBtn = document.getElementById('loginBtn');
-    const loginSwitch = document.getElementById('loginSwitch');
-    const loginErr = document.getElementById('loginErr');
-    const regPassWrap = document.getElementById('regPassWrap');
-    const loginUser = document.getElementById('loginUser');
-    const loginPass = document.getElementById('loginPass');
-    const loginPass2 = document.getElementById('loginPass2');
-    const loginView = document.getElementById('loginView');
-    const appView = document.getElementById('appView');
-    const curUser = document.getElementById('curUser');
-    
-    let isLoginMode = true;
+  const $ = id => document.getElementById(id);
+  const loginView = $('loginView'), appView = $('appView');
+  const curUser = $('curUser'), syncStatus = $('syncStatus');
+  
+  let isLoginMode = true, currentUser = '', saveTimer = null;
+  let students = [], shopGoods = [], redeemLogs = [], homeworks = [];
+  let notices = ''; 
+  let lastUndoData = null;
 
-    loginBtn.addEventListener('click', function(){
-        loginErr.textContent = '';
-        const u = loginUser.value.trim();
-        const p = loginPass.value.trim();
+  function toast(msg){
+    const t = $('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(t._timer); t._timer = setTimeout(()=>t.classList.remove('show'), 2200);
+  }
 
-        if(!u || !p){
-            loginErr.textContent = '账号和密码不能为空';
-            return;
+  async function apiRequest(service, params){
+    const body = new URLSearchParams();
+    body.append('app_key', CONFIG.APP_KEY);
+    for(const k in params) body.append(k, typeof params[k] === 'string' ? params[k] : JSON.stringify(params[k]));
+    try{
+      const res = await fetch(CONFIG.API_DOMAIN + '?s=' + service, {method:'POST', body});
+      return await res.json();
+    }catch(e){ console.error(e); return null; }
+  }
+
+  async function pullFromCloud(){
+    syncStatus.textContent = '正在加载...';
+    const r = await apiRequest('App.Table.Get', { table: CONFIG.TABLE, where: JSON.stringify([['用户ID', '=', currentUser]]) });
+    let row = null;
+    if(r && r.data && r.data.data) row = Array.isArray(r.data.data) ? r.data.data[0] : r.data.data;
+    if(row && row['数据']){
+      try{
+        const cloudData = JSON.parse(row['数据']);
+        if(Array.isArray(cloudData)){ students = cloudData; }
+        else{ 
+          students = cloudData.students || []; 
+          shopGoods = cloudData.shopGoods || []; 
+          redeemLogs = cloudData.redeemLogs || []; 
+          homeworks = cloudData.homeworks || [];
+          notices = cloudData.notices || '';
         }
-
-        if(isLoginMode){
-            const saved = localStorage.getItem('class_user_' + u);
-            if(!saved){
-                loginErr.textContent = '账号不存在，请先注册';
-                return;
-            }
-            const userData = JSON.parse(saved);
-            if(userData.pwd !== p){
-                loginErr.textContent = '密码错误';
-                return;
-            }
-            loginView.classList.add('hidden');
-            appView.classList.remove('hidden');
-            curUser.textContent = u;
-            initGroups();
-            renderAll();
-        }else{
-            const p2 = loginPass2.value.trim();
-            if(p !== p2){
-                loginErr.textContent = '两次输入的密码不一致';
-                return;
-            }
-            if(localStorage.getItem('class_user_' + u)){
-                loginErr.textContent = '该账号已存在，请直接登录';
-                return;
-            }
-            localStorage.setItem('class_user_' + u, JSON.stringify({pwd:p}));
-            loginErr.textContent = '';
-            alert('注册成功！请用账号密码登录');
-            switchMode(true);
-        }
-    });
-
-    loginSwitch.addEventListener('click', function(){
-        switchMode(!isLoginMode);
-    });
-
-    function switchMode(login){
-        isLoginMode = login;
-        loginErr.textContent = '';
-        if(login){
-            loginBtn.textContent = '登录';
-            loginSwitch.innerHTML = '还没有账号？<b>立即注册</b>';
-            regPassWrap.classList.add('hidden');
-        }else{
-            loginBtn.textContent = '注册';
-            loginSwitch.innerHTML = '已有账号？<b>返回登录</b>';
-            regPassWrap.classList.remove('hidden');
-        }
+      }catch(e){ }
     }
+    renderAll(); syncStatus.textContent = '云端已连接';
+  }
 
-    loginPass.addEventListener('keydown', function(e){
-        if(e.key === 'Enter') loginBtn.click();
-    });
-    loginPass2.addEventListener('keydown', function(e){
-        if(e.key === 'Enter') loginBtn.click();
-    });
-
-    const GROUPS = ['第1组','第2组','第3组','第4组','第5组','第6组','第7组','第8组','第9组'];
-    let students = [];
-
-    function initGroups(){
-        const sel = document.getElementById('inGroup');
-        sel.innerHTML = '<option value="">未分组</option>' + GROUPS.map(g => `<option value="${g}">${g}</option>`).join('');
+  async function pushToCloud(){
+    syncStatus.textContent = '正在保存...';
+    const payload = JSON.stringify({ students, shopGoods, redeemLogs, homeworks, notices });
+    const q = await apiRequest('App.Table.Get', { table: CONFIG.TABLE, where: JSON.stringify([['用户ID', '=', currentUser]]) });
+    let existId = null;
+    if(q && q.data && q.data.data){
+      let row = Array.isArray(q.data.data) ? q.data.data[0] : q.data.data;
+      if(row) existId = row.id;
     }
+    const dataObj = { '用户ID': currentUser, '学生姓名': '班级完整数据', '积分': students.reduce((n,s)=>n+(s.score||0),0), '数据': payload };
+    if(existId) await apiRequest('App.Table.Update', {table: CONFIG.TABLE, id: existId, data: JSON.stringify(dataObj)});
+    else await apiRequest('App.Table.Add', {table: CONFIG.TABLE, data: JSON.stringify(dataObj)});
+    syncStatus.textContent = '云端已保存 ' + new Date().toLocaleTimeString();
+  }
 
-    document.getElementById('btnAddStudent').addEventListener('click', function(){
-        const name = document.getElementById('inName').value.trim();
-        if(!name){ alert('请填写学生姓名'); return; }
-        students.push({
-            id: Date.now(),
-            name: name,
-            group: document.getElementById('inGroup').value,
-            gender: document.getElementById('inGender').value,
-            duty: document.getElementById('inDuty').value.trim(),
-            score: 0,
-            logs: []
-        });
-        document.getElementById('inName').value = '';
-        document.getElementById('inDuty').value = '';
-        renderAll();
-    });
+  function scheduleSave(saveUndo = false){
+    if(saveUndo) lastUndoData = JSON.parse(JSON.stringify(students));
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(()=>{ pushToCloud().catch(e=>{ syncStatus.textContent = '保存失败'; }); }, 1500);
+  }
 
-    function renderAll(){
-        renderStudentList();
-        renderStats();
+  $('loginBtn').addEventListener('click', async function(){
+    $('loginErr').textContent = '';
+    const u = $('loginUser').value.trim(), p = $('loginPass').value.trim();
+    if(!u || !p){ $('loginErr').textContent = '账号和密码不能为空'; return; }
+    if(isLoginMode){
+      const saved = localStorage.getItem('class_user_' + u);
+      if(!saved){ $('loginErr').textContent = '账号不存在，请先注册'; return; }
+      if(JSON.parse(saved).pwd !== p){ $('loginErr').textContent = '密码错误'; return; }
+      currentUser = u;
+      loginView.classList.add('hidden'); appView.classList.remove('hidden');
+      curUser.textContent = u; initGroups();
+      try{ await pullFromCloud(); }catch(e){ toast('云端加载失败'); }
+    }else{
+      const p2 = $('loginPass2').value.trim();
+      if(p !== p2){ $('loginErr').textContent = '两次密码不一致'; return; }
+      if(localStorage.getItem('class_user_' + u)){ $('loginErr').textContent = '账号已存在'; return; }
+      localStorage.setItem('class_user_' + u, JSON.stringify({pwd:p}));
+      toast('注册成功，请登录'); switchMode(true);
     }
+  });
+  $('loginSwitch').addEventListener('click', ()=>switchMode(!isLoginMode));
+  function switchMode(login){
+    isLoginMode = login; $('loginErr').textContent = '';
+    if(login){ $('loginBtn').textContent='登录'; $('loginSwitch').innerHTML='还没有账号？<b>立即注册</b>'; $('regPassWrap').classList.add('hidden'); }
+    else{ $('loginBtn').textContent='注册'; $('loginSwitch').innerHTML='已有账号？<b>返回登录</b>'; $('regPassWrap').classList.remove('hidden'); }
+  }
+  $('loginPass').addEventListener('keydown', e=>{ if(e.key==='Enter') $('loginBtn').click(); });
+  $('loginPass2').addEventListener('keydown', e=>{ if(e.key==='Enter') $('loginBtn').click(); });
 
-    function renderStats(){
-        document.getElementById('statStu').textContent = students.length;
-        const logCount = students.reduce((n, s) => n + (s.logs ? s.logs.length : 0), 0);
-        document.getElementById('statLog').textContent = logCount;
-    }
+  const GROUPS = ['第1组','第2组','第3组','第4组','第5组','第6组','第7组','第8组','第9组'];
+  function initGroups(){ $('inGroup').innerHTML = '<option value="">未分组</option>' + GROUPS.map(g=>`<option value="${g}">${g}</option>`).join(''); }
 
-    function renderStudentList(){
-        const tbody = document.getElementById('tbodyStu');
-        const empty = document.getElementById('emptyStu');
-        if(students.length === 0){
-            tbody.innerHTML = '';
-            empty.style.display = 'block';
-            return;
-        }
-        empty.style.display = 'none';
-        const list = [...students].sort((a,b) => b.score - a.score);
-        tbody.innerHTML = list.map((s, i) => `
-            <tr>
-                <td class="row-idx">${i+1}</td>
-                <td>
-                    <div class="name-cell">
-                        <div class="avatar">${s.name.charAt(0)}</div>
-                        <span>${s.name}</span>
-                    </div>
-                </td>
-                <td>${s.group ? `<span class="tag-group">${s.group}</span>` : '<span class="muted">未分组</span>'}</td>
-                <td>${s.duty || '<span class="muted">—</span>'}</td>
-                <td><span class="score-num">${s.score}</span></td>
-                <td>
-                    <div class="acts">
-                        <button class="act plus" data-id="${s.id}" data-type="add">加分</button>
-                        <button class="act minus" data-id="${s.id}" data-type="minus">减分</button>
-                        <button class="act del" data-id="${s.id}" data-type="del">删除</button>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
+  $('btnAddStudent').addEventListener('click', function(){
+    const name = $('inName').value.trim();
+    if(!name){ alert('请填写学生姓名'); return; }
+    students.push({id:Date.now(), name, group:$('inGroup').value, gender:$('inGender').value, duty:$('inDuty').value.trim(), score:0, logs:[], exam:{ch:0,ma:0,en:0,ph:0,chm:0,bio:0}, attend:''});
+    $('inName').value=''; $('inDuty').value='';
+    renderAll(); scheduleSave(true);
+  });
 
-        tbody.querySelectorAll('button').forEach(btn => {
-            btn.addEventListener('click', function(){
-                const id = Number(this.dataset.id);
-                const type = this.dataset.type;
-                const stu = students.find(x => x.id === id);
-                if(!stu) return;
+  function renderAll(){ 
+    renderStats(); renderStudentList(); renderGroups(); renderSeats(); renderShop(); renderExam(); renderHomework(); renderAttendance();
+    if(notices) $('btnNotice').innerText = '📢 公告(有)';
+  }
+  
+  function renderStats(){
+    $('statStu').textContent = students.length;
+    $('statLog').textContent = students.reduce((n,s)=>n+(s.logs?s.logs.length:0),0) + redeemLogs.length;
+  }
+// 学生榜
+function renderStudentList(){
+  const tbody = $('tbodyStu'), empty = $('emptyStu');
+  if(students.length===0){ tbody.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  let list = [...students];
+  const kw = $('searchStu').value.trim();
+  if(kw) list = list.filter(s=>s.name.includes(kw) || (s.group||'').includes(kw));
+  list.sort((a,b)=>b.score-a.score);
+  
+  tbody.innerHTML = list.map((s,i)=>{
+    let medal = i===0?'👑':i===1?'🥈':i===2?'🥉':(s.score>=100?'⭐':'');
+    let avatarClass = s.group && s.group.includes('组') ? 'g' + s.group.replace(/[^0-9]/g, '') : 'ungrouped';
+    return `
+    <tr style="${s.score < 0 ? 'background:#fff0f0' : ''}">
+      <td class="row-idx">${i+1}</td>
+      <td><div class="name-cell"><div class="avatar ${avatarClass}">${s.name.charAt(0)}</div><span>${s.name} ${medal}</span></div></td>
+      <td>${s.group ? `<span class="tag-group">${s.group}</span>` : '<span class="muted">未分组</span>'}</td>
+      <td>${s.duty || '<span class="muted">—</span>'}</td>
+      <td><span class="score-num" style="${s.score < 0 ? 'color:#e0454c' : ''}">${s.score}</span></td>
+      <td><div class="acts">
+        <button class="act plus" data-id="${s.id}" data-type="add">加分</button>
+        <button class="act minus" data-id="${s.id}" data-type="minus">减分</button>
+        <button class="act plain" data-id="${s.id}" data-type="history">历史</button>
+        <button class="act plain" data-id="${s.id}" data-type="edit">编辑</button>
+        <button class="act del" data-id="${s.id}" data-type="del">删除</button>
+      </div></td>
+    </tr>`}).join('');
 
-                if(type === 'add'){
-                    const reason = prompt('请输入加分原因：');
-                    if(!reason) return;
-                    stu.score += 1;
-                    stu.logs.push({time: new Date().toLocaleString(), delta: 1, reason});
-                }
-                if(type === 'minus'){
-                    const reason = prompt('请输入减分原因：');
-                    if(!reason) return;
-                    stu.score -= 1;
-                    stu.logs.push({time: new Date().toLocaleString(), delta: -1, reason});
-                }
-                if(type === 'del'){
-                    if(confirm('确定删除该学生吗？')){
-                        students = students.filter(x => x.id !== id);
-                    }
-                }
-                renderAll();
-            });
-        });
-    }
-
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', function(){
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
-            this.classList.add('on');
-            const target = this.dataset.tab;
-            document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
-            document.getElementById('panel-' + target).classList.remove('hidden');
-        });
+  tbody.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click', function(){
+      const id = Number(this.dataset.id), type = this.dataset.type;
+      const stu = students.find(x=>x.id === id);
+      if(!stu) return;
+      if(type === 'add' || type === 'minus') openScoreModal(stu, type);
+      if(type === 'history') openHistoryModal(stu);
+      if(type === 'edit') openEditModal(stu);
+      if(type === 'del'){ if(confirm('确定删除该学生吗？')){ students = students.filter(x=>x.id !== id); renderAll(); scheduleSave(true); } }
     });
+  });
+}
 
-    document.getElementById('btnExport').addEventListener('click', function(){
-        let csv = '排名,姓名,小组,职务,积分\r\n';
-        const list = [...students].sort((a,b) => b.score - a.score);
-        list.forEach((s,i) => {
-            csv += `${i+1},${s.name},${s.group || '未分组'},${s.duty || ''},${s.score}\r\n`;
-        });
-        const blob = new Blob(['\ufeff' + csv], {type:'text/csv'});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = '班级积分表.csv';
-        a.click();
-        URL.revokeObjectURL(url);
-    });
+// 小组榜
+function renderGroups(){
+  const map = {};
+  students.forEach(s=>{ const g = s.group || '未分组'; if(!map[g]) map[g] = {count:0, total:0}; map[g].count++; map[g].total += s.score; });
+  const arr = Object.entries(map).map(([name,v])=>({name, ...v, avg: v.count ? (v.total/v.count).toFixed(1) : 0})).sort((a,b)=>b.total-a.total);
+  $('tbodyGrp').innerHTML = arr.map((g,i)=>`<tr><td class="row-idx">${i+1}</td><td>${g.name} ${i===0?'🔥':''}</td><td>${g.count}</td><td><span class="score-num">${g.total}</span></td><td style="color:#0f9457;font-weight:600">${g.avg}</td></tr>`).join('');
+}
 
-    document.getElementById('btnProfile').addEventListener('click', function(){
-        alert('个人中心功能开发中');
-    });
-    document.getElementById('btnSync').addEventListener('click', function(){
-        alert('云端同步需配置接口，当前数据已保存在本机浏览器');
-    });
-    document.getElementById('btnExam').addEventListener('click', function(){
-        document.querySelector('[data-tab="students"]').click();
-        alert('成绩模块开发中');
-    });
+// 排座
+function renderSeats(){
+  const list = [...students].sort((a,b)=>b.score-a.score);
+  $('seatGrid').innerHTML = list.map((s,i)=>{
+    let cls = 'seat' + (i===0?' top1':i===1?' top2':i===2?' top3':'');
+    return `<div class="${cls}"><div class="n">${i+1} 号座位 · ${s.group||'未分组'}</div><div class="nm">${s.name}</div><div class="sc">${s.score} 分</div></div>`;
+  }).join('');
+}
+
+// 商城
+function renderShop(){
+  const grid = $('shopGrid');
+  if(shopGoods.length === 0) grid.innerHTML = '<div class="empty" style="grid-column:1/-1">暂无商品</div>';
+  else {
+    grid.innerHTML = shopGoods.map((g,i)=>`<div class="goods"><div class="g-name">${g.name}</div><div class="g-meta"><span class="g-cost">${g.cost} 积分</span><span>库存 ${g.stock}</span></div><button class="btn-redeem" data-idx="${i}" ${g.stock<=0?'disabled style="opacity:.5"':''}>兑换</button></div>`).join('');
+    grid.querySelectorAll('.btn-redeem').forEach(btn=>{ btn.onclick = ()=> openRedeemModal(shopGoods[btn.dataset.idx]); });
+  }
+  const list = $('redeemLogList');
+  if(redeemLogs.length===0) list.innerHTML = '<div class="empty" style="padding:20px">暂无兑换记录</div>';
+  else list.innerHTML = redeemLogs.slice(0,20).map(r=>`<div class="hist-item"><div><div class="h-reason">${r.name} 兑换了 <b>${r.goods}</b></div><div class="h-time">${r.time}</div></div><div class="h-num down">-${r.cost}</div></div>`).join('');
+}
+
+// 6科成绩
+function renderExam(){
+  const kw = $('searchExam').value.trim();
+  let list = [...students];
+  if(kw) list = list.filter(s=>s.name.includes(kw));
+  
+  let totalAll = 0, passCnt = 0, excellentCnt = 0;
+  list.forEach(s => { 
+    if(!s.exam) s.exam = {ch:0,ma:0,en:0,ph:0,chm:0,bio:0}; 
+    const t = (s.exam.ch||0)+(s.exam.ma||0)+(s.exam.en||0)+(s.exam.ph||0)+(s.exam.chm||0)+(s.exam.bio||0);
+    totalAll += t; 
+    if(t >= 60*6*0.6) passCnt++;
+    if(t >= 60*6*0.85) excellentCnt++;
+  });
+  
+  const avgAll = list.length ? (totalAll/list.length).toFixed(1) : 0;
+  $('examStats').innerHTML = `当前人数: <b>${list.length}</b> &nbsp;|&nbsp; 班级总均分: <b>${avgAll}</b> &nbsp;|&nbsp; 及格人数: <b>${passCnt}</b> &nbsp;|&nbsp; 优秀人数: <b>${excellentCnt}</b>`;
+
+  list.sort((a,b)=> {
+    const tA = (a.exam.ch||0)+(a.exam.ma||0)+(a.exam.en||0)+(a.exam.ph||0)+(a.exam.chm||0)+(a.exam.bio||0);
+    const tB = (b.exam.ch||0)+(b.exam.ma||0)+(b.exam.en||0)+(b.exam.ph||0)+(b.exam.chm||0)+(b.exam.bio||0);
+    return tB - tA;
+  });
+
+  $('tbodyExam').innerHTML = list.map((s,i)=>{
+    const e = s.exam;
+    const total = (e.ch||0)+(e.ma||0)+(e.en||0)+(e.ph||0)+(e.chm||0)+(e.bio||0);
+    const c = v => v<60 && v>0 ? 'text-red' : '';
+    return `<tr>
+      <td class="row-idx">${i+1}</td><td>${s.name}</td>
+      <td class="${c(e.ch)}">${e.ch||'-'}</td><td class="${c(e.ma)}">${e.ma||'-'}</td><td class="${c(e.en)}">${e.en||'-'}</td>
+      <td class="${c(e.ph)}">${e.ph||'-'}</td><td class="${c(e.chm)}">${e.chm||'-'}</td><td class="${c(e.bio)}">${e.bio||'-'}</td>
+      <td><span class="score-num" style="color:#e0454c">${total||'-'}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// 作业看板
+function renderHomework(){
+  if(homeworks.length === 0){ $('tbodyHomework').innerHTML = '<tr><td colspan="5" class="empty">暂无作业</td></tr>'; return; }
+  $('tbodyHomework').innerHTML = homeworks.map((h,i)=>`
+    <tr>
+      <td>${h.date}</td>
+      <td><span class="tag-group" style="background:#fff3e0;color:#e65100">${h.subject}</span></td>
+      <td>${h.content}</td>
+      <td>${h.status || '未提交'}</td>
+      <td><button class="act del" onclick="delHomework(${i})">删除</button></td>
+    </tr>
+  `).join('');
+}
+
+window.delHomework = function(idx){
+  if(confirm('删除这项作业？')) { homeworks.splice(idx, 1); renderHomework(); scheduleSave(true); }
+};
+
+// 考勤
+function renderAttendance(){
+  $('tbodyAttendance').innerHTML = students.map(s=>`
+    <tr>
+      <td>${s.name}</td>
+      <td><span style="color:${s.attend==='迟到'?'#f39c12':s.attend==='请假'?'#3498db':s.attend==='旷课'?'#e0454c':'#18a86b'}">${s.attend || '正常'}</span></td>
+      <td>
+        <button class="act plain" onclick="setAttend(${s.id}, '迟到')">迟到</button>
+        <button class="act plain" onclick="setAttend(${s.id}, '请假')">请假</button>
+        <button class="act plain" onclick="setAttend(${s.id}, '旷课')">旷课</button>
+        <button class="act plain" onclick="setAttend(${s.id}, '')">正常</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+window.setAttend = function(id, status){
+  const stu = students.find(s=>s.id === id);
+  if(!stu) return;
+  stu.attend = status;
+  if(status === '旷课') { stu.score -= 2; stu.logs.push({time:new Date().toLocaleString(), delta: -2, reason: '考勤：旷课'}); }
+  if(status === '迟到') { stu.score -= 1; stu.logs.push({time:new Date().toLocaleString(), delta: -1, reason: '考勤：迟到'}); }
+  renderAll(); scheduleSave(true);
+};
+// --- 弹窗逻辑：加减分 ---
+function openScoreModal(stu, type){
+  const isAdd = type === 'add';
+  const box = $('modalBox');
+  box.innerHTML = `
+    <div class="m-hd"><h3>${isAdd ? '+ 加分操作' : '- 减分操作'}</h3><button class="m-close" id="mClose">×</button></div>
+    <div class="m-bd">
+      <div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:14px;color:#7b8298"><span>当前学生：<b style="color:#2a3350">${stu.name}</b></span><span>· ${stu.group||'未分组'} (当前 ${stu.score} 分)</span></div>
+      <div class="op-switch"><button class="op-btn add ${isAdd?'on':''}" id="opAdd">+ 加分</button><button class="op-btn sub ${!isAdd?'on':''}" id="opSub">- 减分</button></div>
+      <div class="hint-line" style="margin-top:0;margin-bottom:6px">快捷分数</div>
+      <div class="quick-grid">${[1,2,3,5,10,20,50,100].map(v=>`<button class="quick" data-v="${v}">${v}</button>`).join('')}</div>
+      <div class="hint-line" style="margin-top:0;margin-bottom:6px">自定义分数</div>
+      <input type="number" id="scVal" class="custom-input" placeholder="输入本次变动分数" style="margin-bottom:14px">
+      <div class="hint-line" style="margin-top:0;margin-bottom:6px">操作原因 / 备注（必填）</div>
+      <textarea id="scReason" class="remark" placeholder="如：主动打扫卫生..."></textarea>
+    </div>
+    <div class="m-ft"><button class="btn-line" id="mCancel">取消</button><button class="btn-solid" id="mSave">确认提交</button></div>`;
+  $('modalBack').classList.remove('hidden');
+  let currentType = type;
+  $('opAdd').onclick = ()=>{ currentType='add'; $('opAdd').classList.add('on'); $('opSub').classList.remove('on'); };
+  $('opSub').onclick = ()=>{ currentType='minus'; $('opSub').classList.add('on'); $('opAdd').classList.remove('on'); };
+  box.querySelectorAll('.quick').forEach(btn=>{ btn.onclick = function(){ box.querySelectorAll('.quick').forEach(b=>b.classList.remove('on')); this.classList.add('on'); $('scVal').value = this.dataset.v; }; });
+  $('mClose').onclick = $('mCancel').onclick = ()=>$('modalBack').classList.add('hidden');
+  $('mSave').onclick = function(){
+    let val = Math.abs(Number($('scVal').value)), reason = $('scReason').value.trim();
+    if(!val) return toast('请输入分值'); if(!reason) return toast('请填写原因');
+    const finalVal = currentType === 'add' ? val : -val;
+    stu.score += finalVal; stu.logs.push({time:new Date().toLocaleString(), delta:finalVal, reason});
+    $('modalBack').classList.add('hidden'); renderAll(); scheduleSave(true); toast('操作成功');
+  };
+}
+
+// --- 编辑学生 ---
+function openEditModal(stu){
+  const box = $('modalBox');
+  box.innerHTML = `
+    <div class="m-hd"><h3>编辑学生信息</h3><button class="m-close" id="mClose">×</button></div>
+    <div class="m-bd">
+      <div class="f"><label>学生姓名</label><input id="edName" value="${stu.name}"></div>
+      <div class="f-row">
+        <div class="f"><label>班级小组</label><select id="edGroup">${['','第1组','第2组','第3组','第4组','第5组','第6组','第7组','第8组','第9组'].map(g=>`<option value="${g}" ${g===stu.group?'selected':''}>${g||'未分组'}</option>`).join('')}</select></div>
+        <div class="f"><label>性别</label><select id="edGender">${['','男','女'].map(g=>`<option value="${g}" ${g===stu.gender?'selected':''}>${g||'未填写'}</option>`).join('')}</select></div>
+      </div>
+      <div class="f" style="margin-top:10px"><label>班级职务</label><input id="edDuty" value="${stu.duty||''}" placeholder="如：班长"></div>
+      <div class="f" style="margin-top:10px"><label>总积分（修改会记录流水）</label><input id="edScore" type="number" value="${stu.score}"></div>
+    </div>
+    <div class="m-ft"><button class="btn-line" id="mCancel">取消</button><button class="btn-solid" id="mSave">保存</button></div>`;
+  $('modalBack').classList.remove('hidden');
+  $('mClose').onclick = $('mCancel').onclick = ()=>$('modalBack').classList.add('hidden');
+  $('mSave').onclick = function(){
+    stu.name = $('edName').value.trim() || stu.name; stu.group = $('edGroup').value; stu.gender = $('edGender').value; stu.duty = $('edDuty').value.trim();
+    const newSc = Number($('edScore').value);
+    if(newSc !== stu.score){ const delta = newSc - stu.score; stu.score = newSc; stu.logs.push({time:new Date().toLocaleString(), delta, reason: '手动修改总积分'}); }
+    $('modalBack').classList.add('hidden'); renderAll(); scheduleSave(true); toast('已保存');
+  };
+}
+
+// --- 历史记录 ---
+function openHistoryModal(stu){
+  const box = $('modalBox');
+  const logs = [...(stu.logs||[])].reverse();
+  box.innerHTML = `
+    <div class="m-hd"><h3>${stu.name} · 积分历史</h3><button class="m-close" id="mClose">×</button></div>
+    <div class="m-bd"><div class="hist-list">
+      ${logs.length===0?'<div class="empty">暂无记录</div>':logs.map(l=>`<div class="hist-item"><div><div class="h-time">${l.time}</div><div class="h-reason">${l.reason}</div></div><div class="h-num ${l.delta>0?'up':'down'}">${l.delta>0?'+':''}${l.delta}</div></div>`).join('')}
+    </div></div>
+    <div class="m-ft"><button class="btn-line" id="mCloseBtn">关闭</button></div>`;
+  $('modalBack').classList.remove('hidden');
+  $('mClose').onclick = $('mCloseBtn').onclick = ()=>$('modalBack').classList.add('hidden');
+}
+
+// --- 商城 ---
+$('btnAddGoods').onclick = function(){
+  const box = $('modalBox');
+  box.innerHTML = `
+    <div class="m-hd"><h3>添加奖品</h3><button class="m-close" id="mClose">×</button></div>
+    <div class="m-bd">
+      <div class="f"><label>奖品名称</label><input id="gdName" placeholder="如：免作业券"></div>
+      <div class="f-row"><div class="f"><label>所需积分</label><input id="gdCost" type="number" value="50"></div><div class="f"><label>库存</label><input id="gdStock" type="number" value="10"></div></div>
+    </div>
+    <div class="m-ft"><button class="btn-line" id="mCancel">取消</button><button class="btn-solid" id="mSave">添加</button></div>`;
+  $('modalBack').classList.remove('hidden');
+  $('mClose').onclick = $('mCancel').onclick = ()=>$('modalBack').classList.add('hidden');
+  $('mSave').onclick = function(){
+    const name = $('gdName').value.trim(); if(!name) return toast('请填写名称');
+    shopGoods.push({name, cost: Number($('gdCost').value), stock: Number($('gdStock').value)});
+    $('modalBack').classList.add('hidden'); renderShop(); scheduleSave(true); toast('已添加');
+  };
+};
+
+function openRedeemModal(goods){
+  const sorted = [...students].sort((a,b)=>b.score-a.score);
+  const box = $('modalBox');
+  box.innerHTML = `
+    <div class="m-hd"><h3>兑换：${goods.name}</h3><button class="m-close" id="mClose">×</button></div>
+    <div class="m-bd"><div class="f"><label>选择学生（消耗 ${goods.cost} 积分）</label><select id="rdStu" style="height:42px">${sorted.map(s=>`<option value="${s.id}" ${s.score<goods.cost?'disabled':''}>${s.name} (${s.score}分)</option>`).join('')}</select></div></div>
+    <div class="m-ft"><button class="btn-line" id="mCancel">取消</button><button class="btn-solid" id="mSave">确认兑换</button></div>`;
+  $('modalBack').classList.remove('hidden');
+  $('mClose').onclick = $('mCancel').onclick = ()=>$('modalBack').classList.add('hidden');
+  $('mSave').onclick = function(){
+    const stu = students.find(s=>s.id === Number($('rdStu').value));
+    if(!stu || stu.score < goods.cost) return toast('积分不足');
+    stu.score -= goods.cost; stu.logs.push({time:new Date().toLocaleString(), delta: -goods.cost, reason: `兑换：${goods.name}`});
+    goods.stock--; redeemLogs.unshift({time:new Date().toLocaleString(), name: stu.name, goods: goods.name, cost: goods.cost});
+    $('modalBack').classList.add('hidden'); renderAll(); scheduleSave(true); toast('兑换成功');
+  };
+}
+
+// --- 成绩录入 ---
+$('btnAddExam').onclick = function(){
+  const box = $('modalBox');
+  box.innerHTML = `
+    <div class="m-hd"><h3>录入6科成绩</h3><button class="m-close" id="mClose">×</button></div>
+    <div class="m-bd">
+      <div class="f"><label>选择学生</label><select id="exStu" style="height:42px">${students.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}</select></div>
+      <div class="f-row" style="margin-bottom:10px"><div class="f"><label>语文</label><input id="exCh" type="number"></div><div class="f"><label>数学</label><input id="exMa" type="number"></div><div class="f"><label>英语</label><input id="exEn" type="number"></div></div>
+      <div class="f-row"><div class="f"><label>物理</label><input id="exPh" type="number"></div><div class="f"><label>化学</label><input id="exChm" type="number"></div><div class="f"><label>生物</label><input id="exBio" type="number"></div></div>
+    </div>
+    <div class="m-ft"><button class="btn-line" id="mCancel">取消</button><button class="btn-solid" id="mSave">保存</button></div>`;
+  $('exStu').onchange = function(){
+    const s = students.find(x=>x.id === Number(this.value));
+    if(s && s.exam){ $('exCh').value=s.exam.ch||''; $('exMa').value=s.exam.ma||''; $('exEn').value=s.exam.en||''; $('exPh').value=s.exam.ph||''; $('exChm').value=s.exam.chm||''; $('exBio').value=s.exam.bio||''; }
+  };
+  $('exStu').dispatchEvent(new Event('change'));
+  $('modalBack').classList.remove('hidden');
+  $('mClose').onclick = $('mCancel').onclick = ()=>$('modalBack').classList.add('hidden');
+  $('mSave').onclick = function(){
+    const s = students.find(x=>x.id === Number($('exStu').value));
+    if(s){ s.exam = {ch:Number($('exCh').value)||0, ma:Number($('exMa').value)||0, en:Number($('exEn').value)||0, ph:Number($('exPh').value)||0, chm:Number($('exChm').value)||0, bio:Number($('exBio').value)||0}; renderAll(); scheduleSave(true); $('modalBack').classList.add('hidden'); toast('已保存'); }
+  };
+};
+  // --- 布置作业 ---
+  $('btnAddHomework').onclick = function(){
+    const box = $('modalBox');
+    box.innerHTML = `
+      <div class="m-hd"><h3>布置作业</h3><button class="m-close" id="mClose">×</button></div>
+      <div class="m-bd">
+        <div class="f-row"><div class="f"><label>学科</label><select id="hwSub"><option>语文</option><option>数学</option><option>英语</option><option>物理</option><option>化学</option><option>生物</option></select></div><div class="f"><label>日期</label><input id="hwDate" type="date"></div></div>
+        <div class="f" style="margin-top:10px"><label>作业内容</label><input id="hwCon" placeholder="如：练习册P30"></div>
+      </div>
+      <div class="m-ft"><button class="btn-line" id="mCancel">取消</button><button class="btn-solid" id="mSave">布置</button></div>`;
+    $('modalBack').classList.remove('hidden');
+    $('hwDate').valueAsDate = new Date();
+    $('mClose').onclick = $('mCancel').onclick = ()=>$('modalBack').classList.add('hidden');
+    $('mSave').onclick = function(){
+      homeworks.unshift({date: $('hwDate').value, subject: $('hwSub').value, content: $('hwCon').value.trim(), status: '未提交'});
+      $('modalBack').classList.add('hidden'); renderHomework(); scheduleSave(true); toast('已布置');
+    };
+  };
+
+  // --- 公告 ---
+  $('btnNotice').onclick = function(){
+    const box = $('modalBox');
+    box.innerHTML = `
+      <div class="m-hd"><h3>班级公告栏</h3><button class="m-close" id="mClose">×</button></div>
+      <div class="m-bd"><textarea id="ntText" class="remark" style="min-height:120px" placeholder="输入公告内容...">${notices}</textarea></div>
+      <div class="m-ft"><button class="btn-line" id="mCancel">取消</button><button class="btn-solid" id="mSave">保存公告</button></div>`;
+    $('modalBack').classList.remove('hidden');
+    $('mClose').onclick = $('mCancel').onclick = ()=>$('modalBack').classList.add('hidden');
+    $('mSave').onclick = function(){ notices = $('ntText').value; $('modalBack').classList.add('hidden'); scheduleSave(true); toast('公告已保存'); };
+  };
+
+  // --- 倒计时 ---
+  $('btnTimer').onclick = function(){
+    if($('timerOverlay')) return;
+    const div = document.createElement('div');
+    div.className = 'timer-overlay'; div.id = 'timerOverlay';
+    div.innerHTML = `<div class="timer-time" id="timerDisp">15:00</div><div class="timer-btns"><button class="timer-btn" id="tStart">开始</button><button class="timer-btn" id="tClose">关闭</button></div>`;
+    document.body.appendChild(div);
+    let time = 900, timer = null; 
+    const disp = $('timerDisp');
+    function update(){ const m = String(Math.floor(time/60)).padStart(2,'0'), s = String(time%60).padStart(2,'0'); disp.textContent = `${m}:${s}`; }
+    $('tStart').onclick = function(){ if(timer) return; this.textContent='计时中...'; timer = setInterval(()=>{ if(time<=0){ clearInterval(timer); alert('时间到！'); div.remove(); return; } time--; update(); }, 1000); };
+    $('tClose').onclick = function(){ clearInterval(timer); div.remove(); };
+    update();
+  };
+
+  // --- 随机抽人 ---
+  $('btnLucky').onclick = function(){
+    if(students.length === 0) return toast('还没有学生哦');
+    const box = $('modalBox');
+    box.innerHTML = `
+      <div class="m-hd" style="justify-content:center;padding-top:24px"><h3 style="font-size:20px;color:#e52e71">🎲 随机抽人</h3></div>
+      <div class="m-bd" style="text-align:center;padding:40px 20px">
+        <div id="luckyName" style="font-size:42px;font-weight:800;color:#2f6bff;margin-bottom:20px">准备...</div>
+        <button class="btn-solid" id="btnStopLucky" style="display:none;font-size:18px;height:48px;background:#e52e71;border-radius:24px">停止</button>
+        <button class="btn-solid" id="btnStartLucky" style="font-size:18px;height:48px;background:#e52e71;border-radius:24px">开始</button>
+      </div>`;
+    $('modalBack').classList.remove('hidden');
+    let timer = null; const nameEl = $('luckyName');
+    $('btnStartLucky').onclick = function(){ this.style.display='none'; $('btnStopLucky').style.display='inline-block'; timer = setInterval(()=>{ nameEl.textContent = students[Math.floor(Math.random()*students.length)].name; }, 50); };
+    $('btnStopLucky').onclick = function(){ clearInterval(timer); this.style.display='none'; const lucky = students[Math.floor(Math.random()*students.length)]; nameEl.textContent = lucky.name; nameEl.style.color = '#e0454c'; setTimeout(()=>{ $('modalBack').classList.add('hidden'); openScoreModal(lucky, 'add'); }, 1200); };
+  };
+
+  // --- 批量 ---
+  $('btnBatchStu').onclick = function(){
+    const box = $('modalBox');
+    box.innerHTML = `
+      <div class="m-hd"><h3>批量加减</h3><button class="m-close" id="mClose">×</button></div>
+      <div class="m-bd"><div class="f"><label>分值</label><input id="btScore" type="number" value="1"></div><div class="f"><label>原因</label><input id="btReason"></div></div>
+      <div class="m-ft"><button class="btn-line" id="mCancel">取消</button><button class="btn-solid" id="mSave">确定</button></div>`;
+    $('modalBack').classList.remove('hidden');
+    $('mClose').onclick = $('mCancel').onclick = ()=>$('modalBack').classList.add('hidden');
+    $('mSave').onclick = function(){
+      const val = Number($('btScore').value), reason = $('btReason').value.trim() || '批量操作';
+      students.forEach(s=>{ s.score += val; s.logs.push({time:new Date().toLocaleString(), delta:val, reason}); });
+      $('modalBack').classList.add('hidden'); renderAll(); scheduleSave(true);
+    };
+  };
+
+  // --- 基础操作、导出与导入 ---
+  document.querySelectorAll('.tab').forEach(tab=>{
+    tab.addEventListener('click', function(){ document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on')); this.classList.add('on'); document.querySelectorAll('.panel').forEach(p=>p.classList.add('hidden')); $('panel-' + this.dataset.tab).classList.remove('hidden'); });
+  });
+  $('searchStu').addEventListener('input', renderStudentList);
+  $('searchExam').addEventListener('input', renderExam);
+
+  $('btnSync').onclick = async ()=>{ try{ await pushToCloud(); toast('已同步'); }catch(e){ toast('同步失败'); } };
+  $('btnExport').onclick = function(){
+    let csv = '=== 积分 ===\r\n姓名,小组,积分\r\n';
+    students.forEach(s=>{ csv += `${s.name},${s.group||'-'},${s.score}\r\n`; });
+    const blob = new Blob(['\ufeff'+csv], {type:'text/csv'}); const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='数据.csv'; a.click();
+  };
+  $('btnProfile').onclick = function(){
+    const box = $('modalBox');
+    box.innerHTML = `<div class="m-hd"><h3>个人中心</h3><button class="m-close" id="mClose">×</button></div><div class="m-bd"><div class="f"><label>当前账号</label><b>${currentUser}</b></div></div><div class="m-ft"><button class="btn-line" id="mCloseBtn">关闭</button></div>`;
+    $('modalBack').classList.remove('hidden'); $('mClose').onclick = $('mCloseBtn').onclick = ()=>$('modalBack').classList.add('hidden');
+  };
+  $('btnPickCsv').onclick = ()=>$('fileCsv').click();
+  $('fileCsv').onchange = function(e){
+    const reader = new FileReader();
+    reader.onload = function(ev){
+      const rows = ev.target.result.split('\n').filter(r=>r.trim());
+      let start = /姓名|name/i.test(rows[0]) ? 1 : 0;
+      for(let i=start; i<rows.length; i++){
+        const r = rows[i].split(',');
+        if(!r[0]) continue;
+        students.push({id:Date.now()+i, name:r[0].trim(), gender:(r[1]||'').trim(), group:(r[2]||'').trim(), duty:(r[3]||'').trim(), score:0, logs:[], exam:{ch:0,ma:0,en:0,ph:0,chm:0,bio:0}, attend:''});
+      }
+      renderAll(); scheduleSave(true); toast('导入成功'); e.target.value='';
+    };
+    reader.readAsText(e.target.files[0]);
+  };
 });
 </script>
-
 </body>
 </html>
-
