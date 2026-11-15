@@ -1,0 +1,864 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>班级积分管理</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f6bff'/%3E%3Crect x='8' y='16' width='4' height='9' fill='white'/%3E%3Crect x='14' y='12' width='4' height='13' fill='white'/%3E%3Crect x='20' y='8' width='4' height='17' fill='white'/%3E%3C/svg%3E">
+<style>
+:root{
+  --blue:#2f6bff; --blue-d:#1f56e0; --blue-l:#eaf1ff;
+  --bg:#f3f5fa; --card:#ffffff; --line:#e5e9f2; --line-2:#eef1f7;
+  --text:#1f2430; --muted:#7a8194;
+  --green:#18a86b; --green-l:#e8f8f0;
+  --red:#e0454c; --red-l:#fdeaea;
+  --amber:#f0a020;
+  --shadow:0 1px 3px rgba(23,35,64,.06), 0 6px 18px rgba(23,35,64,.05);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,-apple-system,sans-serif;
+  background:var(--bg); color:var(--text); font-size:14px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;font-size:14px}
+input,select,textarea{font-family:inherit;font-size:16px;color:var(--text)}
+.hidden{display:none!important}
+
+/* ============ 登录页 ============ */
+.login-wrap{
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(160deg,#eef3ff 0%,#f6f8fc 45%,#eef7f2 100%);
+  padding:24px 16px;
+}
+.login-card{
+  width:100%; max-width:400px; background:#fff; border-radius:16px; padding:32px 28px 26px;
+  box-shadow:0 12px 40px rgba(30,58,120,.10), 0 2px 6px rgba(30,58,120,.06);
+}
+.login-logo{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.login-logo .mark{
+  width:38px;height:38px;border-radius:9px;background:var(--blue);display:flex;
+  align-items:center;justify-content:center;
+}
+.login-logo .mark svg{width:20px;height:20px}
+.login-title{font-size:21px;font-weight:600;letter-spacing:.5px}
+.login-sub{color:var(--muted);font-size:13px;margin-bottom:22px;line-height:1.7}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13px;color:#59617a;margin-bottom:6px}
+.field input{
+  width:100%;height:44px;border:1px solid var(--line);border-radius:9px;padding:0 13px;
+  outline:none;transition:border-color .15s,box-shadow .15s;background:#fcfdff;
+}
+.field input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(47,107,255,.12);background:#fff}
+.login-btn{
+  width:100%;height:46px;border-radius:9px;background:var(--blue);color:#fff;
+  font-size:16px;font-weight:600;margin-top:6px;transition:background .15s;
+}
+.login-btn:hover{background:var(--blue-d)}
+.login-switch{text-align:center;margin-top:16px;font-size:13px;color:var(--muted)}
+.login-switch b{color:var(--blue);cursor:pointer;font-weight:500}
+.login-err{color:var(--red);font-size:13px;min-height:20px;margin-top:8px}
+.login-note{
+  margin-top:18px;padding-top:14px;border-top:1px dashed var(--line);
+  font-size:12px;color:var(--muted);line-height:1.7;
+}
+
+/* ============ 顶部栏 ============ */
+.topbar{
+  height:62px;background:#fff;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;position:sticky;top:0;z-index:20;
+}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand .mark{
+  width:32px;height:32px;border-radius:8px;background:var(--blue);flex:none;
+  display:flex;align-items:center;justify-content:center;
+}
+.brand .mark svg{width:17px;height:17px}
+.brand-txt .t{font-size:17px;font-weight:600;white-space:nowrap}
+.brand-txt .s{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;line-height:1.3}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block}
+.top-actions{display:flex;align-items:center;gap:8px;flex:none}
+.tbtn{
+  height:34px;padding:0 13px;border-radius:7px;color:#fff;font-size:13.5px;
+  display:inline-flex;align-items:center;gap:5px;transition:opacity .15s;white-space:nowrap;
+}
+.tbtn:hover{opacity:.9}
+.tbtn.sync{background:#2b7cd3}
+.tbtn.export{background:#1f9c63}
+.tbtn.exam{background:#2f6bff}
+.tbtn.profile{background:#eef1f8;color:#2b3247}
+.tbtn svg{width:15px;height:15px}
+
+/* ============ 主体布局 ============ */
+.layout{display:flex;align-items:flex-start;gap:16px;padding:16px;max-width:1500px;margin:0 auto}
+.sidebar{width:270px;flex:none;display:flex;flex-direction:column;gap:14px}
+.card{background:var(--card);border-radius:11px;box-shadow:var(--shadow);border:1px solid #f0f2f7}
+.card-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;border-bottom:1px solid var(--line-2);
+}
+.card-hd h3{font-size:15px;font-weight:600;display:flex;align-items:center;gap:7px}
+.card-hd .collapse{color:#aeb6c8;font-size:12px}
+.card-bd{padding:14px 16px 16px}
+
+/* 统计 */
+.stat-row{display:flex;gap:10px;padding:14px 16px}
+.stat{
+  flex:1;background:#f7f9fd;border-radius:9px;padding:10px 12px;border:1px solid #f0f3fa;
+}
+.stat .k{font-size:12px;color:var(--muted)}
+.stat .v{font-size:23px;font-weight:600;line-height:1.25;color:#2461e8}
+.stat.alt .v{color:#1f9c63}
+
+/* 表单 */
+.f{margin-bottom:10px}
+.f label{display:block;font-size:12.5px;color:#69718a;margin-bottom:5px}
+.f input,.f select{
+  width:100%;height:40px;border:1px solid var(--line);border-radius:8px;padding:0 11px;
+  background:#fbfcff;outline:none;font-size:15px;
+}
+.f input:focus,.f select:focus{border-color:#9cb9ff;box-shadow:0 0 0 3px rgba(47,107,255,.09);background:#fff}
+.f-row{display:flex;gap:8px}
+.f-row .f{flex:1;margin-bottom:0}
+.btn-main{
+  width:100%;height:42px;border-radius:8px;background:var(--blue);color:#fff;
+  font-size:15px;font-weight:500;margin-top:12px;transition:background .15s;
+}
+.btn-main:hover{background:var(--blue-d)}
+.btn-green{
+  width:100%;height:40px;border-radius:8px;background:#1f9c63;color:#fff;
+  font-size:14.5px;display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.btn-ghost{
+  width:100%;height:36px;border-radius:8px;background:#f2f4f9;color:#4a5268;
+  font-size:13.5px;margin-top:8px;border:1px solid #e9ecf4;
+}
+.hint-line{font-size:12px;color:#98a0b3;margin-top:8px;line-height:1.6}
+.mobile-tip{display:none;font-size:12.5px;color:#98a0b3;margin-top:8px}
+
+/* 使用提示 */
+.tips{font-size:12.5px;color:#5d647a;line-height:1.85}
+.tips li{margin-bottom:9px;padding-left:2px;list-style:none;display:flex;gap:6px}
+.tips li::before{content:"";width:4px;height:4px;border-radius:50%;background:#b9c3d8;flex:none;margin-top:9px}
+.tips b{color:#2a3350;font-weight:600}
+
+/* ============ 主区域 ============ */
+.main{flex:1;min-width:0}
+.tabs{
+  display:flex;background:#fff;border-radius:11px;padding:5px;gap:4px;
+  box-shadow:var(--shadow);border:1px solid #f0f2f7;margin-bottom:14px;overflow-x:auto;
+}
+.tab{
+  flex:1;min-width:98px;height:40px;border-radius:8px;font-size:14.5px;color:#4d556e;
+  display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;
+  transition:background .15s,color .15s;
+}
+.tab:hover{background:#f4f7fe}
+.tab.on{background:var(--blue);color:#fff;font-weight:500}
+.tab svg{width:15px;height:15px;opacity:.9}
+
+.panel{background:#fff;border-radius:11px;box-shadow:var(--shadow);border:1px solid #f0f2f7;padding:14px 16px 18px}
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.search-wrap{flex:1;min-width:200px;position:relative}
+.search-wrap input{
+  width:100%;height:40px;border:1px solid var(--line);border-radius:8px;
+  padding:0 12px 0 36px;background:#fbfcff;outline:none;font-size:15px;
+}
+.search-wrap input:focus{border-color:#9cb9ff;background:#fff}
+.search-wrap svg{position:absolute;left:12px;top:11px;width:16px;height:16px;color:#a4acbf}
+.seg{display:flex;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}
+.seg button{height:38px;padding:0 13px;font-size:13.5px;color:#5a6279;border-right:1px solid var(--line-2)}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--blue);color:#fff}
+.btn-batch{
+  height:38px;padding:0 14px;border-radius:8px;background:#f0902b;color:#fff;
+  font-size:13.5px;display:inline-flex;align-items:center;gap:6px;
+}
+.btn-batch:hover{background:#e5831f}
+
+/* 表格 */
+.tbl-scroll{width:100%;overflow-x:auto}
+table{width:100%;border-collapse:collapse;table-layout:fixed;min-width:640px}
+th{
+  text-align:left;font-size:13px;color:#7b8298;font-weight:500;
+  padding:10px 10px;background:#f8fafd;white-space:nowrap;
+}
+th:first-child{border-radius:8px 0 0 8px}
+th:last-child{border-radius:0 8px 8px 0}
+td{padding:11px 10px;border-bottom:1px solid #f2f4f9;font-size:14px;vertical-align:middle}
+tr:hover td{background:#fafcff}
+.row-idx{color:#8d94a8;font-size:13px}
+.name-cell{display:flex;align-items:center;gap:8px;min-width:0}
+.avatar{
+  width:28px;height:28px;border-radius:50%;flex:none;display:flex;align-items:center;
+  justify-content:center;font-size:13px;color:#fff;background:#8aa6f7;
+}
+.avatar.g2{background:#7ec8a9}.avatar.g3{background:#f0a8a8}.avatar.g4{background:#c3a8f0}
+.avatar.g5{background:#f0c48a}.avatar.g6{background:#8ac6f0}.avatar.g7{background:#a8d98a}
+.avatar.g8{background:#f0a8d4}.avatar.g9{background:#9aa8f0}
+.name-cell span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.score-num{font-weight:600;color:#2461e8;font-size:15px}
+.tag-group{
+  display:inline-block;padding:2px 8px;border-radius:5px;background:#eef3ff;
+  color:#3a6bd6;font-size:12.5px;white-space:nowrap;
+}
+.muted{color:#a3aabb;font-size:13px}
+.acts{display:flex;gap:4px;flex-wrap:wrap}
+.act{
+  height:27px;padding:0 8px;border-radius:5px;font-size:12.5px;
+  display:inline-flex;align-items:center;gap:3px;
+}
+.act.plus{background:var(--green-l);color:#0f9457}
+.act.minus{background:var(--red-l);color:#c93a41}
+.act.plain{background:#f1f4fb;color:#4d5670}
+.act.del{background:#fff0f0;color:#d14848}
+.act:hover{filter:brightness(.96)}
+
+/* 空态 */
+.empty{padding:52px 16px;text-align:center;color:#9aa2b6}
+.empty .ico{width:52px;height:52px;margin:0 auto 10px;border-radius:12px;background:#f3f6fd;
+  display:flex;align-items:center;justify-content:center;color:#b8c3dc}
+.empty p{font-size:13.5px;margin-bottom:2px}
+.empty .sub{font-size:12.5px;color:#b0b7c8}
+
+/* 分组榜人均 */
+.avg{color:#0f9457;font-weight:600}
+
+/* 积分排座 */
+.seat-wrap{padding:6px 2px}
+.seat-legend{font-size:12.5px;color:#8a92a6;margin-bottom:12px}
+.seat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.seat{
+  border:1px solid #e9edf5;border-radius:9px;padding:10px;background:#fbfcff;
+  display:flex;flex-direction:column;gap:4px;min-height:66px;
+}
+.seat .n{font-size:11.5px;color:#9aa2b6}
+.seat .nm{font-size:14.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seat .sc{font-size:12.5px;color:#2461e8}
+.seat.top1{border-color:#ffe0a6;background:#fffbf1}
+.seat.top2{border-color:#dfe6f5;background:#f9fbff}
+.seat.top3{border-color:#ffe4d0;background:#fff9f4}
+
+/* 商城 */
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.goods{
+  border:1px solid #eceff6;border-radius:10px;padding:13px;background:#fff;
+  display:flex;flex-direction:column;gap:8px;
+}
+.goods .g-name{font-size:14.5px;font-weight:500}
+.goods .g-meta{font-size:12.5px;color:#7f8799;display:flex;justify-content:space-between}
+.goods .g-cost{color:#e0761a;font-weight:600}
+.btn-redeem{height:32px;border-radius:7px;background:var(--blue-l);color:#2a5fd6;font-size:13px}
+.btn-redeem:hover{background:#dde9ff}
+
+/* 积分记录 */
+.rec-summary{font-size:13px;color:#7b8298;margin-left:auto}
+.rec-summary b{color:#2461e8}
+.pager{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 0 2px;flex-wrap:wrap}
+.pager button{height:32px;min-width:32px;padding:0 10px;border-radius:6px;border:1px solid var(--line);
+  background:#fff;color:#4d556e;font-size:13px}
+.pager button:disabled{color:#c3c9d8;cursor:not-allowed}
+.pager button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.pager .info{font-size:12.5px;color:#98a0b3;margin:0 4px}
+
+/* 成绩 */
+.exam-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.exam-select{height:38px;border:1px solid var(--line);border-radius:8px;padding:0 10px;background:#fff;min-width:170px}
+.mini-btn{height:34px;padding:0 12px;border-radius:7px;font-size:13px;display:inline-flex;align-items:center;gap:5px}
+.mini-btn.blue{background:var(--blue);color:#fff}
+.mini-btn.line{border:1px solid var(--line);color:#4d5670;background:#fff}
+.mini-btn.redline{border:1px solid #f5c9c9;color:#d14848;background:#fff}
+.rank-badge{width:22px;height:22px;border-radius:6px;display:inline-flex;align-items:center;
+  justify-content:center;font-size:12px;background:#eff3fb;color:#5b647c}
+.rank-1{background:#fff1d8;color:#c07a00}
+.rank-2{background:#e9eff9;color:#4a6fa5}
+.rank-3{background:#fdeee2;color:#b06a34}
+.delta-up{color:#0f9457;font-size:13px}
+.delta-down{color:#d14848;font-size:13px}
+.delta-flat{color:#9aa2b6;font-size:13px}
+
+/* ============ 弹窗 ============ */
+.modal-back{
+  position:fixed;inset:0;background:rgba(22,30,50,.36);z-index:100;
+  display:flex;align-items:flex-start;justify-content:center;padding:60px 16px 30px;overflow-y:auto;
+}
+.modal{
+  width:100%;max-width:470px;background:#fff;border-radius:14px;
+  box-shadow:0 18px 50px rgba(20,32,60,.22);overflow:hidden;
+}
+.modal.wide{max-width:620px}
+.m-hd{display:flex;align-items:center;justify-content:space-between;padding:17px 20px 6px}
+.m-hd h3{font-size:17px;font-weight:600;display:flex;align-items:center;gap:7px}
+.m-close{width:30px;height:30px;border-radius:6px;color:#9aa2b6;font-size:20px;line-height:1;
+  display:flex;align-items:center;justify-content:center}
+.m-close:hover{background:#f3f5fa}
+.m-bd{padding:8px 20px 4px}
+.m-ft{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:16px 20px 18px}
+.btn-line{height:38px;padding:0 22px;border-radius:8px;background:#f1f3f9;color:#4d556e;font-size:14px}
+.btn-solid{height:38px;padding:0 26px;border-radius:8px;background:#3d82f0;color:#fff;font-size:14px;font-weight:500}
+.btn-solid:hover{background:#2e72df}
+.btn-solid.orange{background:#f0902b;color:#fff}
+.btn-solid.orange:hover{background:#e5831f}
+.btn-solid:disabled{background:#c8cfdd;cursor:not-allowed}
+
+/* 学生信息行 */
+.stu-line{display:flex;justify-content:space-between;align-items:center;padding:2px 0 14px;
+  font-size:13.5px;color:#7b8298}
+.stu-line b{color:#2a3350;font-size:14.5px;font-weight:600}
+/* 加减分切换 */
+.op-switch{display:flex;gap:10px;margin-bottom:16px}
+.op-btn{
+  flex:1;height:42px;border-radius:8px;border:1px solid #dde3ee;background:#fff;
+  font-size:15px;color:#5d647a;
+}
+.op-btn.add.on{border-color:#21b06a;color:#0f9457;background:#f3fcf7;font-weight:500}
+.op-btn.sub.on{border-color:#e5484d;color:#d14848;background:#fff6f6;font-weight:500}
+/* 快捷分数 */
+.qlabel{font-size:12.5px;color:#8a92a6;margin:2px 0 8px}
+.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:14px}
+.quick{
+  height:40px;border:1px solid #e2e7f1;border-radius:8px;background:#fbfcff;font-size:15px;color:#39405a;
+}
+.quick:hover{border-color:#b9c9ee;background:#fff}
+.quick.on{border-color:#3d82f0;color:#2563e8;background:#eff5ff;font-weight:600}
+.custom-input{
+  width:100%;height:44px;border:1px solid #e2e7f1;border-radius:8px;padding:0 12px;background:#fbfcff;outline:none;
+}
+.custom-input:focus{border-color:#9cb9ff;background:#fff}
+.remark{
+  width:100%;min-height:78px;border:1px solid #e2e7f1;border-radius:8px;padding:10px 12px;
+  background:#fbfcff;outline:none;resize:vertical;line-height:1.6;font-size:15px;
+}
+.remark:focus{border-color:#9cb9ff;background:#fff}
+.err-tip{color:var(--red);font-size:12.5px;margin-top:6px;min-height:17px}
+
+/* 批量弹窗 */
+.batch-switch{display:flex;gap:10px;margin-bottom:14px}
+.batch-btn2{flex:1;height:42px;border:1px solid #dde3ee;border-radius:8px;background:#fff;font-size:15px;color:#5d647a}
+.batch-btn2.add.on{border-color:#21b06a;color:#0f9457;background:#f3fcf7;font-weight:500}
+.batch-btn2.sub.on{border-color:#e5484d;color:#d14848;background:#fff6f6;font-weight:500}
+.target-label{font-size:12.5px;color:#8a92a6;margin-bottom:8px}
+.target-switch{display:flex;gap:10px;margin-bottom:14px}
+.target-btn{flex:1;height:38px;border:1px solid #dde3ee;border-radius:8px;background:#fff;font-size:14px;color:#5d647a}
+.target-btn.on{border-color:#3d82f0;color:#2563e8;background:#eff5ff;font-weight:500}
+.batch-reason{width:100%;height:40px;border:1px solid #e2e7f1;border-radius:8px;padding:0 12px;background:#fbfcff;outline:none}
+.batch-bar{display:flex;align-items:center;gap:14px;padding:10px 0 8px;font-size:12.5px;color:#7b8298}
+.batch-bar .link{color:#2461e8;cursor:pointer}
+.batch-bar .cnt{margin-left:auto}
+.batch-list{max-height:270px;overflow-y:auto;border:1px solid #eef1f7;border-radius:9px;background:#fcfdff}
+.batch-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid #f1f4f9;cursor:pointer}
+.batch-item:last-child{border-bottom:none}
+.batch-item:hover{background:#f7faff}
+.chk{width:18px;height:18px;border-radius:4px;border:1.5px solid #ccd4e4;background:#fff;
+  display:flex;align-items:center;justify-content:center;flex:none}
+.chk.on{background:#3d82f0;border-color:#3d82f0}
+.chk.on::after{content:"";width:9px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;
+  transform:rotate(-45deg) translateY(-1px)}
+.batch-item .bi-name{flex:1;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.batch-item .bi-sc{font-size:12.5px;color:#8a92a6}
+.batch-score-row{display:flex;align-items:center;gap:10px;margin-top:12px}
+.batch-score-row input{height:40px;border:1px solid #e2e7f1;border-radius:8px;padding:0 12px;background:#fbfcff;width:120px;outline:none}
+
+/* 历史 */
+.hist-list{max-height:400px;overflow-y:auto}
+.hist-item{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid #f2f4f9}
+.hist-item:last-child{border-bottom:none}
+.hist-item .h-time{font-size:12.5px;color:#9aa2b6}
+.hist-item .h-reason{font-size:13.5px;color:#3f4760;margin-top:2px;word-break:break-all}
+.hist-item .h-num{font-size:15px;font-weight:600;white-space:nowrap}
+.h-num.up{color:#0f9457}.h-num.down{color:#d14848}
+
+/* 编辑 */
+.edit-grid .f{margin-bottom:12px}
+.edit-grid .f input,.edit-grid .f select{height:42px;font-size:15px}
+
+/* 个人中心 */
+.prof-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f2f4f9;font-size:13.5px}
+.prof-row span{color:#7b8298}
+.prof-row b{font-weight:500}
+.prof-acts{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+
+/* Toast */
+.toast{
+  position:fixed;left:50%;bottom:38px;transform:translateX(-50%) translateY(10px);
+  background:rgba(30,38,58,.94);color:#fff;padding:10px 18px;border-radius:9px;font-size:13.5px;
+  opacity:0;transition:opacity .22s,transform .22s;z-index:300;pointer-events:none;max-width:80vw;text-align:center;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* 响应式 */
+@media (max-width:960px){
+  .layout{flex-direction:column;align-items:stretch;padding:12px;gap:12px}
+  .main{width:100%;max-width:100%;order:1}
+  .sidebar{order:2}
+  .panel{padding:12px 12px 16px}
+  .mobile-tip{display:block}
+  .tabs{max-width:100%;overflow-x:auto}
+  .sidebar{width:100%;position:static}
+  .topbar{height:auto;padding:10px 12px;flex-wrap:wrap;gap:8px}
+  .brand .mark{width:28px;height:28px}
+  .brand-txt .t{font-size:15.5px}
+  .top-actions{width:100%;justify-content:flex-end;gap:6px}
+  .tbtn{height:32px;padding:0 10px;font-size:12.5px}
+  .seat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stat .v{font-size:20px}
+  .sidebar{display:grid;grid-template-columns:1fr;gap:12px}
+}
+@media (max-width:520px){
+  .tabs .tab{min-width:0;font-size:13px;padding:0 8px}
+  .tab .t-txt{font-size:12.5px}
+  .toolbar{gap:8px}
+  .seg button{padding:0 9px;font-size:12.5px}
+  .btn-batch{padding:0 10px;font-size:12.5px}
+  .quick-grid{gap:7px}
+  .modal-back{padding:26px 10px 20px}
+  .m-bd{padding:8px 15px 4px}
+  .m-ft{padding:14px 15px 16px}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= 登录 ================= -->
+<div class="login-wrap" id="loginView">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="mark">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="13" width="4" height="8" fill="#fff" rx="1"/><rect x="10" y="9" width="4" height="12" fill="#fff" rx="1"/><rect x="17" y="4" width="4" height="17" fill="#fff" rx="1"/></svg>
+      </div>
+      <div class="login-title">班级积分管理</div>
+    </div>
+    <p class="login-sub">登录后管理本班学生积分、小组排名与成绩分析</p>
+    <div class="field">
+      <label>账号</label>
+      <input id="loginUser" type="text" placeholder="请输入账号，如 banji01" autocomplete="username">
+    </div>
+    <div class="field">
+      <label>密码</label>
+      <input id="loginPass" type="password" placeholder="请输入密码" autocomplete="current-password">
+    </div>
+    <div class="field hidden" id="regPassWrap">
+      <label>确认密码</label>
+      <input id="loginPass2" type="password" placeholder="再次输入密码">
+    </div>
+    <div class="login-err" id="loginErr"></div>
+    <button class="login-btn" id="loginBtn">登录</button>
+    <div class="login-switch" id="loginSwitch">还没有账号？<b>立即注册</b></div>
+    <p class="login-note">
+      数据默认保存在本机浏览器，按账号独立存储；顶部【同步】按钮可上传/拉取云端备份，跨设备共用一套数据。清除浏览器数据会同时清除本地积分数据，建议定期导出备份。
+    </p>
+  </div>
+</div>
+
+<!-- ================= 主系统 ================= -->
+<div id="appView" class="hidden">
+  <header class="topbar">
+    <div class="brand">
+      <div class="mark">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="13" width="4" height="8" fill="#fff" rx="1"/><rect x="10" y="9" width="4" height="12" fill="#fff" rx="1"/><rect x="17" y="4" width="4" height="17" fill="#fff" rx="1"/></svg>
+      </div>
+      <div class="brand-txt">
+        <div class="t">班级积分管理</div>
+        <div class="s"><span class="dot"></span><span id="curUser">—</span><span>·</span><span id="syncStatus">本地已保存</span></div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="tbtn sync" id="btnSync">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6" stroke-width="2"/></svg>同步
+      </button>
+      <button class="tbtn export" id="btnExport">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>导出
+      </button>
+      <button class="tbtn exam" id="btnExam">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M4 19V7"/><path d="M10 19V11"/><path d="M16 19V4"/><path d="M22 19V9"/></svg>成绩
+      </button>
+      <button class="tbtn profile" id="btnProfile">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#2b3247" stroke-width="2"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 21c1-4 4-6 7.5-6s6.5 2 7.5 6"/></svg>个人中心
+      </button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+      <div class="card">
+        <div class="stat-row">
+          <div class="stat">
+            <div class="k">学生总数</div>
+            <div class="v" id="statStu">0</div>
+          </div>
+          <div class="stat alt">
+            <div class="k">积分记录</div>
+            <div class="v" id="statLog">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd"><h3>新增学生</h3><span class="collapse">收起</span></div>
+        <div class="card-bd">
+          <div class="f"><label>学生姓名</label><input id="inName" placeholder="学生姓名" maxlength="20"></div>
+          <div class="f-row">
+            <div class="f"><label>班级小组（选填）</label>
+              <select id="inGroup">
+                <option value="">未分组</option>
+              </select>
+            </div>
+            <div class="f"><label>性别（选填）</label>
+              <select id="inGender">
+                <option value="">未填写</option>
+                <option>男</option>
+                <option>女</option>
+              </select>
+            </div>
+          </div>
+          <div class="f" style="margin-top:10px"><label>班级职务（选填）</label><input id="inDuty" placeholder="如：班长 / 组长" maxlength="20"></div>
+          <button class="btn-main" id="btnAddStudent">添加学生</button>
+          <div class="hint-line">回车也可快速添加</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd"><h3>批量导入</h3><span class="collapse">展开</span></div>
+        <div class="card-bd">
+          <p class="hint-line" style="margin-top:0;margin-bottom:10px">上传 Excel 批量导入 / 更新学生（首行可为表头，列：姓名·性别·组号·职务）</p>
+          <input type="file" id="fileExcel" accept=".csv,.txt,.xls,.xlsx" class="hidden">
+          <button class="btn-green" id="btnPickFile">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:15px;height:15px"><path d="M4 7h6l2 2h8v10H4z" fill="#fff" stroke="none"/></svg>选择 Excel 文件
+          </button>
+          <button class="btn-ghost" id="btnTpl">下载导入模板</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd"><h3>使用提示</h3><span class="collapse">收起</span></div>
+        <div class="card-bd">
+          <ul class="tips">
+            <li><span><b>批量导入学生</b>：上传花名册，模板列为 姓名·性别·组号·职务（首行可为表头，重复姓名自动更新）；也可先点「下载导入模板」填写。<br>纯网页版可直接导入 CSV 文件，Excel 请另存为 CSV 后再导入。</span></li>
+            <li><span><b>顶部切换</b>可查看「小组榜」「积分排座」「积分商城」「积分记录」。</span></li>
+            <li><span>排行榜中点击「加分」「减分」进行积分操作，必须填写备注。</span></li>
+            <li><span>「编辑」可修改姓名 / 小组 / 职务 / 性别，「删除」可移出该学生。</span></li>
+            <li><span>顶部「批量加减」可勾选多名学生（或整组）一次加减同一分数。</span></li>
+            <li><span>「积分商城」可添加礼物，对学生或小组兑换并自动扣积分。</span></li>
+            <li><span>点「导出」生成 WPS / Excel 可打开的表格文件，含学生榜、小组榜、积分记录。</span></li>
+            <li><span>【同步按钮】：拉取云端覆盖本地 / 上传本地到云端备份，实现多设备共用一套班级数据。</span></li>
+          </ul>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 主区域 -->
+    <main class="main">
+      <nav class="tabs" id="tabs">
+        <button class="tab on" data-tab="students">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c.9-3.6 3.4-5.4 6.5-5.4s5.6 1.8 6.5 5.4"/><circle cx="18" cy="9.5" r="2.3"/><path d="M16.5 14.5c2.6.3 4.4 1.9 5 4.5"/></svg>
+          <span class="t-txt">学生榜</span>
+        </button>
+        <button class="tab" data-tab="groups">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7.5" r="2.6"/><circle cx="17" cy="7.5" r="2.6"/><path d="M2 19c.6-3 2.6-4.6 5-4.6s4.4 1.6 5 4.6"/><path d="M12 19c.6-3 2.6-4.6 5-4.6s4.4 1.6 5 4.6"/></svg>
+          <span class="t-txt">小组榜</span>
+        </button>
+        <button class="tab" data-tab="seats">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="7" rx="1.5"/><rect x="3" y="13" width="18" height="7" rx="1.5"/><path d="M7 7.5h.01M8 16.5h.01"/></svg>
+          <span class="t-txt">积分排座</span>
+        </button>
+        <button class="tab" data-tab="shop">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8h16l-1.2 11H5.2z"/><path d="M8.5 8V6.4a3.5 3.5 0 0 1 7 0V8"/></svg>
+          <span class="t-txt">积分商城</span>
+        </button>
+        <button class="tab" data-tab="records">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+          <span class="t-txt">积分记录</span>
+        </button>
+      </nav>
+
+      <!-- ===== 学生榜 ===== -->
+      <section class="panel" id="panel-students">
+        <div class="toolbar">
+          <div class="search-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#a4acbf" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></svg>
+            <input id="searchStu" placeholder="搜索学生姓名 / 小组快速定位...">
+          </div>
+          <div class="seg" id="sortStu">
+            <button class="on" data-sort="desc">高→低</button>
+            <button data-sort="asc">低→高</button>
+            <button data-sort="time">按时间</button>
+          </div>
+          <button class="btn-batch" id="btnBatchStu">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:14px;height:14px"><path d="M4 7h10M4 12h10M4 17h7"/><path d="M18 6v6M15 9h6"/></svg>批量加减
+          </button>
+        </div>
+        <div class="mobile-tip">手机上左右滑动表格可查看「操作」按钮</div>
+        <div class="tbl-scroll">
+          <table>
+            <colgroup>
+              <col style="width:8%"><col style="width:20%"><col style="width:18%">
+              <col style="width:18%"><col style="width:10%"><col style="width:26%">
+            </colgroup>
+            <thead>
+              <tr><th>排名</th><th>姓名</th><th>班级小组</th><th>班级职务</th><th>积分</th><th>操作</th></tr>
+            </thead>
+            <tbody id="tbodyStu"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="emptyStu">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#b8c3dc" stroke-width="1.8" style="width:26px;height:26px"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c1-3.8 4-5.8 7.5-5.8s6.5 2 7.5 5.8"/><path d="M18 4v4M16 6h4"/></svg></div>
+          <p>还没有学生</p>
+          <div class="sub">先在左侧「新增学生」添加，或批量导入花名册</div>
+        </div>
+      </section>
+
+      <!-- ===== 小组榜 ===== -->
+      <section class="panel hidden" id="panel-groups">
+        <div class="toolbar">
+          <div class="search-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#a4acbf" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></svg>
+            <input id="searchGrp" placeholder="搜索小组名称...">
+          </div>
+          <div class="seg" id="sortGrp">
+            <button class="on" data-sort="desc">高→低</button>
+            <button data-sort="asc">低→高</button>
+            <button data-sort="time">按时间</button>
+          </div>
+          <button class="btn-batch" id="btnBatchGrp">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:14px;height:14px"><path d="M4 7h10M4 12h10M4 17h7"/><path d="M18 6v6M15 9h6"/></svg>批量加减
+          </button>
+        </div>
+        <div class="tbl-scroll">
+          <table>
+            <colgroup>
+              <col style="width:12%"><col style="width:28%"><col style="width:20%"><col style="width:20%"><col style="width:20%">
+            </colgroup>
+            <thead>
+              <tr><th>排名</th><th>小组名称</th><th>人数</th><th>总积分</th><th>人均积分</th><th>操作</th></tr>
+            </thead>
+            <tbody id="tbodyGrp"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="emptyGrp">
+         <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#b8c3dc" stroke-width="1.8" style="width:26px;height:26px"><circle cx="12" cy="12" r="10"></circle></svg></div>
+
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const loginBtn = document.getElementById('loginBtn');
+    const loginSwitch = document.getElementById('loginSwitch');
+    const loginErr = document.getElementById('loginErr');
+    const regPassWrap = document.getElementById('regPassWrap');
+    const loginUser = document.getElementById('loginUser');
+    const loginPass = document.getElementById('loginPass');
+    const loginPass2 = document.getElementById('loginPass2');
+    const loginView = document.getElementById('loginView');
+    const appView = document.getElementById('appView');
+    const curUser = document.getElementById('curUser');
+    
+    let isLoginMode = true;
+
+    loginBtn.addEventListener('click', function(){
+        loginErr.textContent = '';
+        const u = loginUser.value.trim();
+        const p = loginPass.value.trim();
+
+        if(!u || !p){
+            loginErr.textContent = '账号和密码不能为空';
+            return;
+        }
+
+        if(isLoginMode){
+            const saved = localStorage.getItem('class_user_' + u);
+            if(!saved){
+                loginErr.textContent = '账号不存在，请先注册';
+                return;
+            }
+            const userData = JSON.parse(saved);
+            if(userData.pwd !== p){
+                loginErr.textContent = '密码错误';
+                return;
+            }
+            loginView.classList.add('hidden');
+            appView.classList.remove('hidden');
+            curUser.textContent = u;
+            initGroups();
+            renderAll();
+        }else{
+            const p2 = loginPass2.value.trim();
+            if(p !== p2){
+                loginErr.textContent = '两次输入的密码不一致';
+                return;
+            }
+            if(localStorage.getItem('class_user_' + u)){
+                loginErr.textContent = '该账号已存在，请直接登录';
+                return;
+            }
+            localStorage.setItem('class_user_' + u, JSON.stringify({pwd:p}));
+            loginErr.textContent = '';
+            alert('注册成功！请用账号密码登录');
+            switchMode(true);
+        }
+    });
+
+    loginSwitch.addEventListener('click', function(){
+        switchMode(!isLoginMode);
+    });
+
+    function switchMode(login){
+        isLoginMode = login;
+        loginErr.textContent = '';
+        if(login){
+            loginBtn.textContent = '登录';
+            loginSwitch.innerHTML = '还没有账号？<b>立即注册</b>';
+            regPassWrap.classList.add('hidden');
+        }else{
+            loginBtn.textContent = '注册';
+            loginSwitch.innerHTML = '已有账号？<b>返回登录</b>';
+            regPassWrap.classList.remove('hidden');
+        }
+    }
+
+    loginPass.addEventListener('keydown', function(e){
+        if(e.key === 'Enter') loginBtn.click();
+    });
+    loginPass2.addEventListener('keydown', function(e){
+        if(e.key === 'Enter') loginBtn.click();
+    });
+
+    const GROUPS = ['第1组','第2组','第3组','第4组','第5组','第6组','第7组','第8组','第9组'];
+    let students = [];
+
+    function initGroups(){
+        const sel = document.getElementById('inGroup');
+        sel.innerHTML = '<option value="">未分组</option>' + GROUPS.map(g => `<option value="${g}">${g}</option>`).join('');
+    }
+
+    document.getElementById('btnAddStudent').addEventListener('click', function(){
+        const name = document.getElementById('inName').value.trim();
+        if(!name){ alert('请填写学生姓名'); return; }
+        students.push({
+            id: Date.now(),
+            name: name,
+            group: document.getElementById('inGroup').value,
+            gender: document.getElementById('inGender').value,
+            duty: document.getElementById('inDuty').value.trim(),
+            score: 0,
+            logs: []
+        });
+        document.getElementById('inName').value = '';
+        document.getElementById('inDuty').value = '';
+        renderAll();
+    });
+
+    function renderAll(){
+        renderStudentList();
+        renderStats();
+    }
+
+    function renderStats(){
+        document.getElementById('statStu').textContent = students.length;
+        const logCount = students.reduce((n, s) => n + (s.logs ? s.logs.length : 0), 0);
+        document.getElementById('statLog').textContent = logCount;
+    }
+
+    function renderStudentList(){
+        const tbody = document.getElementById('tbodyStu');
+        const empty = document.getElementById('emptyStu');
+        if(students.length === 0){
+            tbody.innerHTML = '';
+            empty.style.display = 'block';
+            return;
+        }
+        empty.style.display = 'none';
+        const list = [...students].sort((a,b) => b.score - a.score);
+        tbody.innerHTML = list.map((s, i) => `
+            <tr>
+                <td class="row-idx">${i+1}</td>
+                <td>
+                    <div class="name-cell">
+                        <div class="avatar">${s.name.charAt(0)}</div>
+                        <span>${s.name}</span>
+                    </div>
+                </td>
+                <td>${s.group ? `<span class="tag-group">${s.group}</span>` : '<span class="muted">未分组</span>'}</td>
+                <td>${s.duty || '<span class="muted">—</span>'}</td>
+                <td><span class="score-num">${s.score}</span></td>
+                <td>
+                    <div class="acts">
+                        <button class="act plus" data-id="${s.id}" data-type="add">加分</button>
+                        <button class="act minus" data-id="${s.id}" data-type="minus">减分</button>
+                        <button class="act del" data-id="${s.id}" data-type="del">删除</button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+
+        tbody.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function(){
+                const id = Number(this.dataset.id);
+                const type = this.dataset.type;
+                const stu = students.find(x => x.id === id);
+                if(!stu) return;
+
+                if(type === 'add'){
+                    const reason = prompt('请输入加分原因：');
+                    if(!reason) return;
+                    stu.score += 1;
+                    stu.logs.push({time: new Date().toLocaleString(), delta: 1, reason});
+                }
+                if(type === 'minus'){
+                    const reason = prompt('请输入减分原因：');
+                    if(!reason) return;
+                    stu.score -= 1;
+                    stu.logs.push({time: new Date().toLocaleString(), delta: -1, reason});
+                }
+                if(type === 'del'){
+                    if(confirm('确定删除该学生吗？')){
+                        students = students.filter(x => x.id !== id);
+                    }
+                }
+                renderAll();
+            });
+        });
+    }
+
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', function(){
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+            this.classList.add('on');
+            const target = this.dataset.tab;
+            document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
+            document.getElementById('panel-' + target).classList.remove('hidden');
+        });
+    });
+
+    document.getElementById('btnExport').addEventListener('click', function(){
+        let csv = '排名,姓名,小组,职务,积分\r\n';
+        const list = [...students].sort((a,b) => b.score - a.score);
+        list.forEach((s,i) => {
+            csv += `${i+1},${s.name},${s.group || '未分组'},${s.duty || ''},${s.score}\r\n`;
+        });
+        const blob = new Blob(['\ufeff' + csv], {type:'text/csv'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '班级积分表.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('btnProfile').addEventListener('click', function(){
+        alert('个人中心功能开发中');
+    });
+    document.getElementById('btnSync').addEventListener('click', function(){
+        alert('云端同步需配置接口，当前数据已保存在本机浏览器');
+    });
+    document.getElementById('btnExam').addEventListener('click', function(){
+        document.querySelector('[data-tab="students"]').click();
+        alert('成绩模块开发中');
+    });
+});
+</script>
+
+</body>
+</html>
+
